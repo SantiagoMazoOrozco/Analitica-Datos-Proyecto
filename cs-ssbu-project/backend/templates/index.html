@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Aplicación</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header class="bg-primary text-white text-center py-3">
+        <h1>Bienvenido a mi Aplicación</h1>
+    </header>
+    <main class="container my-5">
+        <section class="bg-light p-5 rounded">
+            <h2>Buscar Resultados del Evento</h2>
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="eventId">ID del Evento:</label>
+                    <input type="text" id="eventId" name="eventId" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+            <div id="results" class="mt-3"></div>
+        </section>
+    </main>
+    <footer class="bg-dark text-white text-center py-3">
+        <p>&copy; 2024 Mi Aplicación. Todos los derechos reservados.</p>
+    </footer>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

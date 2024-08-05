@@ -1,0 +1,41 @@
+.app-container {
+  background-image: url('https://source.unsplash.com/1600x900/?nature,water');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.7); /* Mayor opacidad para mejorar el contraste */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h1,
+p {
+  color: #f8f9fa; /* Usar un color claro constante para mejor legibilidad */
+}
+
+.custom-btn {
+  color: #212529; /* Texto oscuro para contrastar con el botón claro */
+  background-color: #f8f9fa; /* Botón claro para contraste con el fondo oscuro */
+  border: 1px solid #f8f9fa;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.custom-btn:hover {
+  transform: translateY(-5px);
+  background-color: #e2e6ea; /* Cambio sutil de color en hover */
+}
+
+.footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  background-color: #343a40;
+}
