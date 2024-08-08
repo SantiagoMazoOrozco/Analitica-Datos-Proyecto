@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { CSVLink } from 'react-csv';
 
 const Page1 = () => {
   const [eventId, setEventId] = useState('');
+  const [tournamentName, setTournamentName] = useState('');
+  const [tournamentDate, setTournamentDate] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,34 +31,43 @@ const Page1 = () => {
           'Authorization': 'Bearer ' + starggKey,
         },
         body: JSON.stringify({
-          query: `query EventSets($eventId: ID!, $page: Int!, $perPage: Int!) { 
-              event(id: $eventId) {
-                  sets(page: $page, perPage: $perPage, sortType: STANDARD) {
-                      pageInfo { total }
-                      nodes { id slots { entrant { name } } }
-                  }
+          query: `query EventDetails($eventId: ID!) {
+            event(id: $eventId) {
+              name
+              startAt
+              tournament {
+                name
               }
+              sets(page: 1, perPage: 1, sortType: STANDARD) {
+                pageInfo { total }
+                nodes { id slots { entrant { name } } }
+              }
+            }
           }`,
           variables: {
             eventId: eventId,
-            page: 1,
-            perPage: 1,
           },
         }),
       });
 
       const data = await response.json();
-      console.log('Respuesta de la API para EventSets:', data);
+      console.log('Respuesta de la API para EventDetails:', data);
 
       if (data.data && data.data.event && data.data.event.sets && data.data.event.sets.pageInfo) {
         numEntrants = data.data.event.sets.pageInfo.total;
+        setTournamentName(data.data.event.tournament.name);
+        
+        // Convertir el timestamp a una fecha legible
+        const timestamp = data.data.event.startAt;
+        const date = new Date(timestamp * 1000);
+        setTournamentDate(date.toLocaleDateString());
       } else {
-        console.error('Datos de respuesta no esperados para EventSets:', data);
-        throw new Error('Datos de respuesta no esperados para EventSets');
+        console.error('Datos de respuesta no esperados para EventDetails:', data);
+        throw new Error('Datos de respuesta no esperados para EventDetails');
       }
     } catch (err) {
-      console.error('Error al obtener sets del evento:', err);
-      setError('Error al obtener sets del evento');
+      console.error('Error al obtener detalles del evento:', err);
+      setError('Error al obtener detalles del evento');
       return;
     }
 
@@ -97,7 +111,14 @@ const Page1 = () => {
             break;
           }
           nodes.forEach(node => {
-            eventResults.push(`${node.entrant.name} placed ${node.placement}`);
+            const nameParts = node.entrant.name.split(' | ');
+            const team = nameParts.length > 1 ? nameParts[0] : ''; // Asigna un equipo si está presente
+            const player = nameParts[nameParts.length > 1 ? 1 : 0]; // Asigna el nombre del jugador
+            eventResults.push({
+              team: team,
+              player: player,
+              placement: node.placement,
+            });
           });
           numEntrantsFound += nodes.length;
         } else {
@@ -128,10 +149,42 @@ const Page1 = () => {
     setLoading(false);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0, x: -100 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 50,
+        damping: 10,
+        staggerChildren: 0.3,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  // Formatear datos para CSV
+  const csvData = [
+    ["Tournament Name", "Tournament ID", "Tournament Date", "Team", "Player", "Placement"],
+    ...results.map(result => [tournamentName, eventId, tournamentDate, result.team, result.player, result.placement])
+  ];
+
   return (
-    <div className="container">
-      <h1 className="text-center mt-5">Obtener Resultados</h1>
-      <div className="mb-3">
+    <motion.div
+      className="container mt-5"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.h1 className="text-center mt-5" variants={itemVariants}>
+        Obtener Resultados
+      </motion.h1>
+      <motion.div className="mb-3" variants={itemVariants}>
         <input
           type="text"
           className="form-control"
@@ -139,23 +192,50 @@ const Page1 = () => {
           onChange={(e) => setEventId(e.target.value)}
           placeholder="Ingrese el ID del Evento"
         />
-      </div>
-      <button className="btn btn-primary" onClick={handleGetResults} disabled={loading}>
+      </motion.div>
+      <motion.button
+        className="btn btn-primary"
+        onClick={handleGetResults}
+        disabled={loading}
+        variants={itemVariants}
+      >
         {loading ? 'Cargando...' : 'Obtener Resultados'}
-      </button>
-      {error && <div className="mt-3 text-danger">{error}</div>}
-      <div className="mt-3">
+      </motion.button>
+      {error && (
+        <motion.div className="mt-3 text-danger" variants={itemVariants}>
+          {error}
+        </motion.div>
+      )}
+      <motion.div className="mt-3" variants={itemVariants}>
         {results.length > 0 ? (
           <ul>
             {results.map((result, index) => (
-              <li key={index}>{result}</li>
+              <motion.li key={index} variants={itemVariants}>
+                {`${result.team ? result.team + ' | ' : ''}${result.player} placed ${result.placement}`}
+              </motion.li>
             ))}
           </ul>
         ) : (
-          !loading && <p>No hay resultados para mostrar.</p>
+          !loading && <motion.p variants={itemVariants}>No hay resultados para mostrar.</motion.p>
         )}
-      </div>
-    </div>
+      </motion.div>
+      {results.length > 0 && (
+        <motion.div className="mt-4" variants={itemVariants}>
+          <CSVLink
+            data={csvData}
+            filename={`${tournamentName}_results.csv`}
+            className="btn btn-success"
+          >
+            Descargar CSV
+          </CSVLink>
+        </motion.div>
+      )}
+      <motion.div className="mt-4" variants={itemVariants}>
+        <Link to="/" className="btn btn-secondary">
+          Volver al Inicio
+        </Link>
+      </motion.div>
+    </motion.div>
   );
 };
 

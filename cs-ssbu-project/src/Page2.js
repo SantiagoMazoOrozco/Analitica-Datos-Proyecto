@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom'; // Importa el componente Link
 import { getEventId } from './getEventId';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -80,6 +81,11 @@ const Page2 = () => {
       </motion.button>
       <motion.div id="result" className="mt-3" variants={itemVariants}>
         {result}
+      </motion.div>
+      <motion.div className="mt-4" variants={itemVariants}>
+        <Link to="/" className="btn btn-secondary">
+          Volver al Inicio
+        </Link>
       </motion.div>
     </motion.div>
   );
