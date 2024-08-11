@@ -1,8 +1,9 @@
 from flask import render_template, url_for, flash, redirect
-from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm
-from app.models import User
+from .forms import RegistrationForm, LoginForm
+from .models import User
 from flask_login import login_user, logout_user, login_required
+from . import db, bcrypt
+from flask import current_app as app
 
 @app.route('/')
 def home():
