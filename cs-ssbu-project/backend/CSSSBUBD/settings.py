@@ -59,7 +59,7 @@ WSGI_APPLICATION = 'CSSSBUBD.wsgi.application'
 # Base de datos
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.db.CSDB',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
         
     }
