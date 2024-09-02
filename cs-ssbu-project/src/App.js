@@ -22,6 +22,11 @@ const App = () => {
                   <i className="fas fa-id-card"></i> Obtener ID
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link btn btn-light mx-2 custom-btn" to="/page3">
+                  <i className="fas fa-user"></i> Obtener Detalles del Jugador
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

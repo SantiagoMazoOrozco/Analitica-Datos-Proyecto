@@ -21,18 +21,15 @@ module.exports = {
           'Authorization': 'Bearer ' + starggKey
         },
         body: JSON.stringify({
-          query: `query EventSets($eventId: ID!, $page: Int!, $perPage: Int!) { 
+          query: `query EventSets($eventId: ID!) { 
               event(id: $eventId) {
-                  sets(page: $page, perPage: $perPage, sortType: STANDARD) {
+                  sets(page: 1, perPage: 1) {
                       pageInfo { total }
-                      nodes { id slots { entrant { name } } }
                   }
               }
           }`,
           variables: {
-            eventId: eventId,
-            page: 1,
-            perPage: 1
+            eventId: eventId
           },
         })
       });
@@ -67,7 +64,7 @@ module.exports = {
           body: JSON.stringify({
             query: `query EventStandings($eventId: ID!, $page: Int!, $perPage: Int!) { 
                 event(id: $eventId) {
-                    standings(query: { perPage: $perPage, page: $page }) {
+                    standings(page: $page, perPage: $perPage) {
                         nodes {
                             placement
                             entrant { name }
@@ -94,7 +91,7 @@ module.exports = {
             break; // Salir del bucle si no hay más resultados
           }
           nodes.forEach(node => {
-            console.log(${node.entrant.name} placed ${node.placement});
+            console.log(`${node.entrant.name} placed ${node.placement}`);
           });
           numEntrantsFound += nodes.length;
         } else {
@@ -111,5 +108,3 @@ module.exports = {
     }
   }
 }
-
-module.exports = { getEventResults };

@@ -40,7 +40,7 @@ const Page1 = () => {
               }
               sets(page: 1, perPage: 1, sortType: STANDARD) {
                 pageInfo { total }
-                nodes { id slots { entrant { name } } }
+                nodes { id slots { entrant { id name } } }
               }
             }
           }`,
@@ -88,7 +88,7 @@ const Page1 = () => {
                     standings(query: { perPage: $perPage, page: $page }) {
                         nodes {
                             placement
-                            entrant { name }
+                            entrant { id name }
                         }
                     }
                 }
@@ -117,6 +117,7 @@ const Page1 = () => {
             eventResults.push({
               team: team,
               player: player,
+              playerId: node.entrant.id, // Aquí guardamos el ID del jugador
               placement: node.placement,
             });
           });
@@ -170,8 +171,8 @@ const Page1 = () => {
 
   // Formatear datos para CSV
   const csvData = [
-    ["Tournament Name", "Tournament ID", "Tournament Date", "Team", "Player", "Placement"],
-    ...results.map(result => [tournamentName, eventId, tournamentDate, result.team, result.player, result.placement])
+    ["Tournament Name", "Tournament ID", "Tournament Date", "Team", "Player", "Player ID", "Placement"],
+    ...results.map(result => [tournamentName, eventId, tournamentDate, result.team, result.player, result.playerId, result.placement])
   ];
 
   return (
@@ -207,33 +208,24 @@ const Page1 = () => {
         </motion.div>
       )}
       <motion.div className="mt-3" variants={itemVariants}>
-        {results.length > 0 ? (
-          <ul>
-            {results.map((result, index) => (
-              <motion.li key={index} variants={itemVariants}>
-                {`${result.team ? result.team + ' | ' : ''}${result.player} placed ${result.placement}`}
-              </motion.li>
-            ))}
-          </ul>
-        ) : (
-          !loading && <motion.p variants={itemVariants}>No hay resultados para mostrar.</motion.p>
+        {results.length > 0 && (
+          <>
+            <h4>Resultados del Evento:</h4>
+            <ul>
+              {results.map((result, index) => (
+                <motion.li key={index} variants={itemVariants}>
+                  {`${result.team ? result.team + ' | ' : ''}${result.player} (ID: ${result.playerId}) placed ${result.placement}`}
+                </motion.li>
+              ))}
+            </ul>
+            <CSVLink data={csvData} filename={`${tournamentName}_results.csv`}>
+              Descargar Resultados CSV
+            </CSVLink>
+          </>
         )}
       </motion.div>
-      {results.length > 0 && (
-        <motion.div className="mt-4" variants={itemVariants}>
-          <CSVLink
-            data={csvData}
-            filename={`${tournamentName}_results.csv`}
-            className="btn btn-success"
-          >
-            Descargar CSV
-          </CSVLink>
-        </motion.div>
-      )}
-      <motion.div className="mt-4" variants={itemVariants}>
-        <Link to="/" className="btn btn-secondary">
-          Volver al Inicio
-        </Link>
+      <motion.div className="mt-3" variants={itemVariants}>
+        <Link to="/page2">Ir a Página 2</Link>
       </motion.div>
     </motion.div>
   );
