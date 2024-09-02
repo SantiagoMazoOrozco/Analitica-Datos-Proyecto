@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
-import { getPlayerDetails } from './getPlayerDetails'; // Ajusta la ruta según sea necesario
-
+import { getSetsByPlayer } from './SetByPlayer';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Page3 = () => {
   const [playerId, setPlayerId] = useState('');
-  const [playerDetails, setPlayerDetails] = useState([]);
+  const [limit, setLimit] = useState(5); // Valor por defecto de 5 sets
+  const [sets, setSets] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const handleGetPlayerDetails = async () => {
+  const handleGetSetsByPlayer = async () => {
     setLoading(true);
-    setError(null);
-    setPlayerDetails([]);
+    setSets([]);
 
     try {
-      const details = await getPlayerDetails(playerId); // Llama a la función importada
-      setPlayerDetails([details]);
-    } catch (err) {
-      setError('Error al obtener detalles del jugador');
+      const result = await getSetsByPlayer(playerId, limit);
+      setSets(result);
+    } catch (error) {
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
@@ -46,8 +46,8 @@ const Page3 = () => {
 
   // Formatear datos para CSV
   const csvData = [
-    ["Player ID", "Gamer Tag", "Characters", "Country"],
-    ...playerDetails.map(detail => [detail.id, detail.gamerTag, detail.characters, detail.country])
+    ["Set ID", "Display Score", "Event Name", "Tournament Name"],
+    ...sets.map(set => [set.id, set.displayScore, set.event.name, set.event.tournament.name])
   ];
 
   return (
@@ -57,8 +57,8 @@ const Page3 = () => {
       initial="hidden"
       animate="visible"
     >
-      <motion.h1 className="text-center mt-5" variants={itemVariants}>
-        Obtener Detalles del Jugador
+      <motion.h1 className="text-center mb-4" variants={itemVariants}>
+        Obtener Sets por Jugador
       </motion.h1>
       <motion.div className="mb-3" variants={itemVariants}>
         <input
@@ -66,46 +66,57 @@ const Page3 = () => {
           className="form-control"
           value={playerId}
           onChange={(e) => setPlayerId(e.target.value)}
-          placeholder="Ingrese el ID del Jugador"
+          placeholder="Ingrese el ID del jugador"
+        />
+      </motion.div>
+      <motion.div className="mb-3" variants={itemVariants}>
+        <input
+          type="number"
+          className="form-control"
+          value={limit}
+          onChange={(e) => setLimit(e.target.value)}
+          placeholder="Ingrese el número de sets a mostrar"
         />
       </motion.div>
       <motion.button
         className="btn btn-primary"
-        onClick={handleGetPlayerDetails}
+        onClick={handleGetSetsByPlayer}
         disabled={loading}
         variants={itemVariants}
       >
-        {loading ? 'Cargando...' : 'Obtener Detalles'}
+        {loading ? 'Cargando...' : 'Obtener Sets'}
       </motion.button>
-      {error && (
-        <motion.div className="mt-3 text-danger" variants={itemVariants}>
-          {error}
-        </motion.div>
-      )}
       <motion.div className="mt-3" variants={itemVariants}>
-        {playerDetails.length > 0 ? (
+        {sets.length > 0 ? (
           <ul>
-            {playerDetails.map((detail, index) => (
-              <motion.li key={index} variants={itemVariants}>
-                {`${detail.gamerTag} (${detail.characters}) - ${detail.country} [ID: ${detail.id}]`}
-              </motion.li>
+            {sets.map(set => (
+              <li key={set.id} style={{ color: 'black' }}>
+                <p><strong>Display Score:</strong> {set.displayScore}</p>
+                <p><strong>Event Name:</strong> {set.event.name}</p>
+                <p><strong>Tournament Name:</strong> {set.event.tournament.name}</p>
+              </li>
             ))}
           </ul>
         ) : (
-          !loading && <motion.p variants={itemVariants}>No hay detalles para mostrar.</motion.p>
+          !loading && <p>No se encontraron sets.</p>
         )}
       </motion.div>
-      {playerDetails.length > 0 && (
+      {sets.length > 0 && (
         <motion.div className="mt-4" variants={itemVariants}>
           <CSVLink
             data={csvData}
-            filename={`player_details_${playerId}.csv`}
+            filename={`sets_${playerId}.csv`}
             className="btn btn-success"
           >
             Descargar CSV
           </CSVLink>
         </motion.div>
       )}
+      <motion.div className="mt-4" variants={itemVariants}>
+        <Link to="/" className="btn btn-secondary">
+          Volver al Inicio
+        </Link>
+      </motion.div>
     </motion.div>
   );
 };
