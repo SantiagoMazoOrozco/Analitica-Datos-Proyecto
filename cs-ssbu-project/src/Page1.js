@@ -15,45 +15,6 @@ const Page1 = () => {
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const getUserDetails = async (userId) => {
-    try {
-      const response = await fetch(startggURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + starggKey,
-        },
-        body: JSON.stringify({
-          query: `query GetUserDetails($userId: ID!) {
-            user(id: $userId) {
-              id
-              name
-            }
-          }`,
-          variables: {
-            userId: userId,
-          },
-        }),
-      });
-
-      const data = await response.json();
-      console.log('Respuesta completa de la API para GetUserDetails:', data);
-
-      // Asegúrate de que la estructura de los datos sea la esperada
-      if (data.data && data.data.user) {
-        return data.data.user;
-      } else {
-        console.error('Datos de respuesta no esperados para GetUserDetails:', data);
-        throw new Error('Datos de respuesta no esperados para GetUserDetails');
-      }
-    } catch (err) {
-      console.error('Error al obtener detalles del usuario:', err);
-      setError('Error al obtener detalles del usuario');
-      return null;
-    }
-  };
-
   const getEventResults = async (eventId) => {
     let numEntrants = 0;
     let numEntrantsFound = 0;
@@ -151,15 +112,11 @@ const Page1 = () => {
             const nameParts = node.entrant.name.split(' | ');
             const team = nameParts.length > 1 ? nameParts[0] : '';
             const player = nameParts[nameParts.length > 1 ? 1 : 0];
-            const playerId = node.entrant.id; // ID del jugador desde los resultados del evento
-
-            // Obtener detalles del usuario
-            const userDetails = await getUserDetails(playerId);
-            const playerName = userDetails ? userDetails.name : 'Nombre no disponible';
+            const playerId = node.entrant.id;
 
             eventResults.push({
               team: team,
-              player: playerName,
+              player: player,
               playerId: playerId,
               placement: node.placement,
             });

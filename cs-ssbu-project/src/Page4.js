@@ -1,63 +1,92 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 
 const Page4 = () => {
-  const [playerName, setPlayerName] = useState('');
-  const [playerData, setPlayerData] = useState(null);
-  const [error, setError] = useState('');
+    const [eventId, setEventId] = useState('');
+    const [matches, setMatches] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  const handleSearch = async () => {
-    try {
-      const response = await axios.post('https://api.start.gg/graphql/alpha', {
-        query: `
-          query GetPlayerByName($playerName: String!) {
-            player(slug: $playerName) {
-              id
-              tag
-              team {
-                id
-                name
-              }
+    const apiKey = process.env.REACT_APP_START_GG_KEY;
+
+    const handleInputChange = (e) => {
+        setEventId(e.target.value);
+    };
+
+    const fetchCompletedMatches = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('https://api.start.gg/gql/alpha', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                    'Accept': 'application/json',
+                    Authorization: `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    query: `query EventSets($eventId: ID!, $page: Int!, $perPage: Int!) {
+                                event(id: $eventId) {
+                                    sets(page: $page, perPage: $perPage, sortType: STANDARD) {
+                                        pageInfo { total }
+                                        nodes { id slots { entrant { name } } }
+                                    }
+                                }
+                            }`,
+                    variables: { eventId, page: 1, perPage: 5 },
+                }),
+            });
+
+            const data = await response.json();
+            if (data.data && data.data.event) {
+                setMatches(data.data.event.sets.nodes);
+            } else {
+                setError('No se encontraron sets completados.');
             }
-          }
-        `,
-        variables: { playerName }
-      });
+        } catch (error) {
+            setError('Error al recuperar los sets completados.');
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      if (response.data.data.player) {
-        setPlayerData(response.data.data.player);
-        setError('');
-      } else {
-        setPlayerData(null);
-        setError('Jugador no encontrado.');
-      }
-    } catch (err) {
-      setError('Error al buscar el jugador.');
-      console.error(err);
-    }
-  };
+    const handleSearch = () => {
+        if (eventId) {
+            fetchCompletedMatches();
+        } else {
+            setError('Por favor ingrese un ID de evento válido.');
+        }
+    };
 
-  return (
-    <div>
-      <h1>Buscar Jugador</h1>
-      <input
-        type="text"
-        value={playerName}
-        onChange={(e) => setPlayerName(e.target.value)}
-        placeholder="Nombre del Jugador"
-      />
-      <button onClick={handleSearch}>Buscar</button>
-      {error && <p>{error}</p>}
-      {playerData && (
+    return (
         <div>
-          <h2>Detalles del Jugador</h2>
-          <p>ID: {playerData.id}</p>
-          <p>Tag: {playerData.tag}</p>
-          <p>Equipo: {playerData.team?.name || 'Sin equipo'}</p>
+            <h2>Buscar Sets Completados por ID de Evento</h2>
+            <input 
+                type="text" 
+                value={eventId} 
+                onChange={handleInputChange} 
+                placeholder="Ingresa el ID del evento"
+            />
+            <button onClick={handleSearch}>Buscar</button>
+
+            {loading && <p>Cargando...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            <div>
+                {matches.length > 0 && (
+                    <ul>
+                        {matches.map((match) => (
+                            <li key={match.id}>
+                                {match.slots.map((slot, index) => (
+                                    <span key={index}>{slot.entrant.name}{index === 0 ? ' vs ' : ''}</span>
+                                ))}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default Page4;
