@@ -8,6 +8,8 @@ def my_view(request):
 =======
 from django.http import JsonResponse
 from .models import Tournament, Event, Player, Set
+from django.db import connection
+
 
 def home(request):
     return render(request, 'myapp/home.html')
@@ -64,4 +66,28 @@ def get_player_by_name(player_name):
         return {'id': player.id, 'name': player.name}
     except Player.DoesNotExist:
         return {}
+<<<<<<< HEAD
 >>>>>>> 59d6183aadefbd7cf6888696ef1f6a8df6c7294f
+=======
+    
+def view_all_players(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT "rowid", 
+                   "First Name" AS first_name, 
+                   "Last Name" AS last_name, 
+                   "Nickname" AS nickname, 
+                   "StartGG User" AS startgg_user, 
+                   "Team" AS team
+            FROM "main"."BDCS"
+            ORDER BY "First Name" ASC
+            LIMIT 49999
+            OFFSET 0;
+        """)
+        rows = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+    
+    players = [dict(zip(columns, row)) for row in rows]
+    
+    return render(request, 'myapp/view_all_players.html', {'players': players})
+>>>>>>> fa46f01ef93b5698a3f7d2ef5a8885c158a0232f
