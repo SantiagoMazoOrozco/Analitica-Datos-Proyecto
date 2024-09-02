@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     # Agrega tu aplicación aquí
 ]
 
+
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -40,7 +41,7 @@ ROOT_URLCONF = 'CSSSBUBD.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -59,7 +60,12 @@ WSGI_APPLICATION = 'CSSSBUBD.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+<<<<<<< HEAD
         'NAME': BASE_DIR/ 'BDCS.sqlite3',
+=======
+        'NAME': BASE_DIR / 'db.sqlite3',
+        
+>>>>>>> 59d6183aadefbd7cf6888696ef1f6a8df6c7294f
     }
 }
 
