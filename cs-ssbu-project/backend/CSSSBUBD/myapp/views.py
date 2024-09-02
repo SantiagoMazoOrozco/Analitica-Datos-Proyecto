@@ -1,11 +1,4 @@
 from django.shortcuts import render
-<<<<<<< HEAD
-from .models import DBCS
-
-def my_view(request):
-    data = BDCS.objects.all()
-    return render(request, 'my_template.html', {'data': data})
-=======
 from django.http import JsonResponse
 from .models import Tournament, Event, Player, Set
 from django.db import connection
@@ -66,9 +59,6 @@ def get_player_by_name(player_name):
         return {'id': player.id, 'name': player.name}
     except Player.DoesNotExist:
         return {}
-<<<<<<< HEAD
->>>>>>> 59d6183aadefbd7cf6888696ef1f6a8df6c7294f
-=======
     
 def view_all_players(request):
     with connection.cursor() as cursor:
@@ -90,4 +80,3 @@ def view_all_players(request):
     players = [dict(zip(columns, row)) for row in rows]
     
     return render(request, 'myapp/view_all_players.html', {'players': players})
->>>>>>> fa46f01ef93b5698a3f7d2ef5a8885c158a0232f

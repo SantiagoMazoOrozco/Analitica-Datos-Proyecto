@@ -60,19 +60,9 @@ WSGI_APPLICATION = 'CSSSBUBD.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-<<<<<<< HEAD
-<<<<<<< HEAD
-        'NAME': BASE_DIR/ 'BDCS.sqlite3',
-=======
-        'NAME': BASE_DIR / 'db.sqlite3',
-        
->>>>>>> 59d6183aadefbd7cf6888696ef1f6a8df6c7294f
-=======
         'NAME': r'D:\VSCode\Analitica\proyecto\Analitica-Datos-Proyecto\cs-ssbu-project\backend\db\CSDB.db', 
->>>>>>> fa46f01ef93b5698a3f7d2ef5a8885c158a0232f
     }
 }
-
 
 # Validadores de contraseñas
 AUTH_PASSWORD_VALIDATORS = [
