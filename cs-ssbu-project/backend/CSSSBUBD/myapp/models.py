@@ -1,8 +1,16 @@
 from django.db import models
 
-class MyModel(models.Model):
-    name = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
+class Tournament(models.Model):
+    name = models.CharField(max_length=255)
 
-    def __str__(self):
-        return self.name
+class Event(models.Model):
+    name = models.CharField(max_length=255)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+
+class Player(models.Model):
+    name = models.CharField(max_length=255)
+
+class Set(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    result = models.TextField()
