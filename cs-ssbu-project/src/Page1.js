@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { CSVLink } from 'react-csv'; // Asegúrate de haber instalado react-csv
 
 const Page1 = () => {
@@ -15,6 +14,45 @@ const Page1 = () => {
   const starggKey = process.env.REACT_APP_STARTGG_API_KEY;
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const getUserDetails = async (userId) => {
+    try {
+      const response = await fetch(startggURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + starggKey,
+        },
+        body: JSON.stringify({
+          query: `query GetUserDetails($userId: ID!) {
+            user(id: $userId) {
+              id
+              name
+            }
+          }`,
+          variables: {
+            userId: userId,
+          },
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Respuesta completa de la API para GetUserDetails:', data);
+
+      // Asegúrate de que la estructura de los datos sea la esperada
+      if (data.data && data.data.user) {
+        return data.data.user;
+      } else {
+        console.error('Datos de respuesta no esperados para GetUserDetails:', data);
+        throw new Error('Datos de respuesta no esperados para GetUserDetails');
+      }
+    } catch (err) {
+      console.error('Error al obtener detalles del usuario:', err);
+      setError('Error al obtener detalles del usuario');
+      return null;
+    }
+  };
 
   const getEventResults = async (eventId) => {
     let numEntrants = 0;
@@ -40,7 +78,7 @@ const Page1 = () => {
               }
               sets(page: 1, perPage: 1, sortType: STANDARD) {
                 pageInfo { total }
-                nodes { id slots { entrant { name } } }
+                nodes { id slots { entrant { name id } } }
               }
             }
           }`,
@@ -51,13 +89,12 @@ const Page1 = () => {
       });
 
       const data = await response.json();
-      console.log('Respuesta de la API para EventDetails:', data);
+      console.log('Respuesta completa de la API para EventDetails:', data);
 
       if (data.data && data.data.event && data.data.event.sets && data.data.event.sets.pageInfo) {
         numEntrants = data.data.event.sets.pageInfo.total;
         setTournamentName(data.data.event.tournament.name);
         
-        // Convertir el timestamp a una fecha legible
         const timestamp = data.data.event.startAt;
         const date = new Date(timestamp * 1000);
         setTournamentDate(date.toLocaleDateString());
@@ -88,7 +125,7 @@ const Page1 = () => {
                     standings(query: { perPage: $perPage, page: $page }) {
                         nodes {
                             placement
-                            entrant { name }
+                            entrant { name id }
                         }
                     }
                 }
@@ -102,7 +139,7 @@ const Page1 = () => {
         });
 
         const data = await response.json();
-        console.log('Respuesta de la API para EventStandings:', data);
+        console.log('Respuesta completa de la API para EventStandings:', data);
 
         if (data.data && data.data.event && data.data.event.standings && data.data.event.standings.nodes) {
           let nodes = data.data.event.standings.nodes;
@@ -110,16 +147,23 @@ const Page1 = () => {
             console.log('No se encontraron más resultados.');
             break;
           }
-          nodes.forEach(node => {
+          for (const node of nodes) {
             const nameParts = node.entrant.name.split(' | ');
-            const team = nameParts.length > 1 ? nameParts[0] : ''; // Asigna un equipo si está presente
-            const player = nameParts[nameParts.length > 1 ? 1 : 0]; // Asigna el nombre del jugador
+            const team = nameParts.length > 1 ? nameParts[0] : '';
+            const player = nameParts[nameParts.length > 1 ? 1 : 0];
+            const playerId = node.entrant.id; // ID del jugador desde los resultados del evento
+
+            // Obtener detalles del usuario
+            const userDetails = await getUserDetails(playerId);
+            const playerName = userDetails ? userDetails.name : 'Nombre no disponible';
+
             eventResults.push({
               team: team,
-              player: player,
+              player: playerName,
+              playerId: playerId,
               placement: node.placement,
             });
-          });
+          }
           numEntrantsFound += nodes.length;
         } else {
           console.error('Datos de respuesta no esperados para EventStandings:', data);
@@ -168,10 +212,9 @@ const Page1 = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  // Formatear datos para CSV
   const csvData = [
-    ["Tournament Name", "Tournament ID", "Tournament Date", "Team", "Player", "Placement"],
-    ...results.map(result => [tournamentName, eventId, tournamentDate, result.team, result.player, result.placement])
+    ["Tournament Name", "Tournament ID", "Tournament Date", "Team", "Player", "Player ID", "Placement"],
+    ...results.map(result => [tournamentName, eventId, tournamentDate, result.team, result.player, result.playerId, result.placement])
   ];
 
   return (
@@ -211,7 +254,7 @@ const Page1 = () => {
           <ul>
             {results.map((result, index) => (
               <motion.li key={index} variants={itemVariants}>
-                {`${result.team ? result.team + ' | ' : ''}${result.player} placed ${result.placement}`}
+                {`${result.team ? result.team + ' | ' : ''}${result.player} (ID: ${result.playerId}) placed ${result.placement}`}
               </motion.li>
             ))}
           </ul>
@@ -220,21 +263,12 @@ const Page1 = () => {
         )}
       </motion.div>
       {results.length > 0 && (
-        <motion.div className="mt-4" variants={itemVariants}>
-          <CSVLink
-            data={csvData}
-            filename={`${tournamentName}_results.csv`}
-            className="btn btn-success"
-          >
+        <motion.div className="mt-3" variants={itemVariants}>
+          <CSVLink data={csvData} filename={`results-${eventId}.csv`}>
             Descargar CSV
           </CSVLink>
         </motion.div>
       )}
-      <motion.div className="mt-4" variants={itemVariants}>
-        <Link to="/" className="btn btn-secondary">
-          Volver al Inicio
-        </Link>
-      </motion.div>
     </motion.div>
   );
 };

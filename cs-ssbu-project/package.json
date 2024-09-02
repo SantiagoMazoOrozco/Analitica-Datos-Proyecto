@@ -167,5 +167,6 @@
     "presets": [
       "react-app"
     ]
-  }
+  },
+  "proxy": "https://api.start.gg"
 }

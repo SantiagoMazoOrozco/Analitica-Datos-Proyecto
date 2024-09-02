@@ -1,113 +1,62 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import axios from 'axios';
 
 const Page4 = () => {
-  const [playerId, setPlayerId] = useState('');
+  const [playerName, setPlayerName] = useState('');
   const [playerData, setPlayerData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
-  const startggURL = "https://api.start.gg/gql/alpha";
-  const starggKey = process.env.REACT_APP_STARTGG_API_KEY;
-
-  const getPlayerDetails = async (playerId) => {
+  const handleSearch = async () => {
     try {
-      const response = await fetch(startggURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + starggKey,
-        },
-        body: JSON.stringify({
-          query: `
-            query PlayerDetails($playerId: ID!) {
-              player(id: $playerId) {
+      const response = await axios.post('https://api.start.gg/graphql/alpha', {
+        query: `
+          query GetPlayerByName($playerName: String!) {
+            player(slug: $playerName) {
+              id
+              tag
+              team {
                 id
                 name
-                gamerTag
-                country {
-                  name
-                }
-                events {
-                  nodes {
-                    id
-                    name
-                  }
-                }
               }
             }
-          `,
-          variables: { playerId },
-        }),
+          }
+        `,
+        variables: { playerName }
       });
 
-      const data = await response.json();
-      console.log('Respuesta de la API para PlayerDetails:', JSON.stringify(data, null, 2));
-
-      if (data.data && data.data.player) {
-        setPlayerData(data.data.player);
+      if (response.data.data.player) {
+        setPlayerData(response.data.data.player);
+        setError('');
       } else {
-        console.error('No se encontró el jugador:', JSON.stringify(data, null, 2));
-        setError('No se encontró el jugador');
+        setPlayerData(null);
+        setError('Jugador no encontrado.');
       }
     } catch (err) {
-      console.error('Error al obtener detalles del jugador:', err);
-      setError('Error al obtener detalles del jugador');
+      setError('Error al buscar el jugador.');
+      console.error(err);
     }
   };
 
-  const handleGetPlayerDetails = async () => {
-    setLoading(true);
-    setError(null);
-    setPlayerData(null);
-    
-    await getPlayerDetails(playerId);
-    
-    setLoading(false);
-  };
-
   return (
-    <motion.div className="container mt-5">
-      <motion.h1 className="text-center mt-5">
-        Obtener Detalles del Jugador
-      </motion.h1>
-      <motion.div className="mb-3">
-        <input
-          type="text"
-          className="form-control"
-          value={playerId}
-          onChange={(e) => setPlayerId(e.target.value)}
-          placeholder="Ingrese el ID del Jugador"
-        />
-      </motion.div>
-      <motion.button
-        className="btn btn-primary"
-        onClick={handleGetPlayerDetails}
-        disabled={loading}
-      >
-        {loading ? 'Cargando...' : 'Obtener Detalles'}
-      </motion.button>
-      {error && (
-        <motion.div className="mt-3 text-danger">
-          {error}
-        </motion.div>
-      )}
+    <div>
+      <h1>Buscar Jugador</h1>
+      <input
+        type="text"
+        value={playerName}
+        onChange={(e) => setPlayerName(e.target.value)}
+        placeholder="Nombre del Jugador"
+      />
+      <button onClick={handleSearch}>Buscar</button>
+      {error && <p>{error}</p>}
       {playerData && (
-        <motion.div className="mt-3">
+        <div>
           <h2>Detalles del Jugador</h2>
-          <p><strong>Nombre:</strong> {playerData.name}</p>
-          <p><strong>Gamer Tag:</strong> {playerData.gamerTag}</p>
-          <p><strong>País:</strong> {playerData.country.name}</p>
-          <h3>Eventos Participados:</h3>
-          <ul>
-            {playerData.events.nodes.map((event, index) => (
-              <li key={index}>{event.name}</li>
-            ))}
-          </ul>
-        </motion.div>
+          <p>ID: {playerData.id}</p>
+          <p>Tag: {playerData.tag}</p>
+          <p>Equipo: {playerData.team?.name || 'Sin equipo'}</p>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 
