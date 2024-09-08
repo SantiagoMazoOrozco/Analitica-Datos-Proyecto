@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CSVLink } from 'react-csv'; // Asegúrate de haber instalado react-csv
+import { CSVLink } from 'react-csv';
 
 const Page1 = () => {
   const [eventId, setEventId] = useState('');
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState('');
+  const [tournamentLocation, setTournamentLocation] = useState(''); // Nuevo estado para la locación
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -36,6 +37,7 @@ const Page1 = () => {
               startAt
               tournament {
                 name
+                venueAddress
               }
               sets(page: 1, perPage: 1, sortType: STANDARD) {
                 pageInfo { total }
@@ -55,6 +57,7 @@ const Page1 = () => {
       if (data.data && data.data.event && data.data.event.sets && data.data.event.sets.pageInfo) {
         numEntrants = data.data.event.sets.pageInfo.total;
         setTournamentName(data.data.event.tournament.name);
+        setTournamentLocation(data.data.event.tournament.venueAddress || 'Locación no disponible'); // Guardar la locación
         
         const timestamp = data.data.event.startAt;
         const date = new Date(timestamp * 1000);
@@ -170,8 +173,8 @@ const Page1 = () => {
   };
 
   const csvData = [
-    ["Tournament Name", "Tournament ID", "Tournament Date", "Team", "Player", "Player ID", "Placement"],
-    ...results.map(result => [tournamentName, eventId, tournamentDate, result.team, result.player, result.playerId, result.placement])
+    ["Tournament Name", "Tournament ID", "Tournament Date", "Location", "Team", "Player", "Player ID", "Placement"],
+    ...results.map(result => [tournamentName, eventId, tournamentDate, tournamentLocation, result.team, result.player, result.playerId, result.placement])
   ];
 
   return (

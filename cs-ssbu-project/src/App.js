@@ -24,7 +24,7 @@ const App = () => {
               </li>
               <li className="nav-item">
                 <Link className="nav-link btn btn-light mx-2 custom-btn" to="/page3">
-                  <i className="fas fa-user"></i> Mantenimiento
+                  <i className="fas fa-user"></i> Consultas Torneo (Por Mejorar)
                 </Link>
               </li>
               <li className="nav-item">

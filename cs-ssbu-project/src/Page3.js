@@ -1,28 +1,64 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
-import { getSetsByPlayer } from './SetByPlayer';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Page3 = () => {
-  const [playerId, setPlayerId] = useState('');
-  const [limit, setLimit] = useState(5); // Valor por defecto de 5 sets
+  const [eventId, setEventId] = useState('');
   const [sets, setSets] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleGetSetsByPlayer = async () => {
-    setLoading(true);
-    setSets([]);
+  const startggURL = "https://api.start.gg/gql/alpha";
+  const starggKey = process.env.REACT_APP_STARTGG_API_KEY;
 
+  const getCompletedSets = async (eventId) => {
     try {
-      const result = await getSetsByPlayer(playerId, limit);
-      setSets(result);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
+      const response = await fetch(startggURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${starggKey}`,
+        },
+        body: JSON.stringify({
+          query: `query CompletedSets($eventId: ID!) {
+            event(id: $eventId) {
+              sets {
+                nodes {
+                  id
+                  winnerId
+                  loserId
+                  state
+                }
+              }
+            }
+          }`,
+          variables: { eventId },
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Respuesta completa de la API para CompletedSets:', data);
+
+      if (data.data && data.data.event && data.data.event.sets) {
+        setSets(data.data.event.sets.nodes);
+      } else {
+        console.error('Datos de respuesta no esperados para CompletedSets:', data);
+        throw new Error('Datos de respuesta no esperados para CompletedSets');
+      }
+    } catch (err) {
+      console.error('Error al obtener los sets completos:', err);
+      setError('Error al obtener los sets completos');
     }
+  };
+
+  const handleGetSets = async () => {
+    setLoading(true);
+    setError(null);
+
+    await getCompletedSets(eventId);
+
+    setLoading(false);
   };
 
   const containerVariants = {
@@ -44,10 +80,9 @@ const Page3 = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  // Formatear datos para CSV
   const csvData = [
-    ["Set ID", "Display Score", "Event Name", "Tournament Name"],
-    ...sets.map(set => [set.id, set.displayScore, set.event.name, set.event.tournament.name])
+    ["Set ID", "Winner ID", "Loser ID", "State"],
+    ...sets.map(set => [set.id, set.winnerId, set.loserId, set.state]),
   ];
 
   return (
@@ -57,66 +92,53 @@ const Page3 = () => {
       initial="hidden"
       animate="visible"
     >
-      <motion.h1 className="text-center mb-4" variants={itemVariants}>
-        Obtener Sets por Jugador
+      <motion.h1 className="text-center mt-5" variants={itemVariants}>
+        Obtener Sets Completos del Evento
       </motion.h1>
       <motion.div className="mb-3" variants={itemVariants}>
         <input
           type="text"
           className="form-control"
-          value={playerId}
-          onChange={(e) => setPlayerId(e.target.value)}
-          placeholder="Ingrese el ID del jugador"
-        />
-      </motion.div>
-      <motion.div className="mb-3" variants={itemVariants}>
-        <input
-          type="number"
-          className="form-control"
-          value={limit}
-          onChange={(e) => setLimit(e.target.value)}
-          placeholder="Ingrese el número de sets a mostrar"
+          value={eventId}
+          onChange={(e) => setEventId(e.target.value)}
+          placeholder="Ingrese el ID del Evento"
         />
       </motion.div>
       <motion.button
         className="btn btn-primary"
-        onClick={handleGetSetsByPlayer}
+        onClick={handleGetSets}
         disabled={loading}
         variants={itemVariants}
       >
         {loading ? 'Cargando...' : 'Obtener Sets'}
       </motion.button>
+      {error && (
+        <motion.div className="mt-3 text-danger" variants={itemVariants}>
+          {error}
+        </motion.div>
+      )}
       <motion.div className="mt-3" variants={itemVariants}>
         {sets.length > 0 ? (
           <ul>
-            {sets.map(set => (
-              <li key={set.id} style={{ color: 'black' }}>
-                <p><strong>Display Score:</strong> {set.displayScore}</p>
-                <p><strong>Event Name:</strong> {set.event.name}</p>
-                <p><strong>Tournament Name:</strong> {set.event.tournament.name}</p>
-              </li>
+            {sets.map((set) => (
+              <motion.li key={set.id} variants={itemVariants}>
+                ID del Set: {set.id}, Ganador: {set.winnerId}, Perdedor: {set.loserId}, Estado: {set.state}
+              </motion.li>
             ))}
           </ul>
-        ) : (
-          !loading && <p>No se encontraron sets.</p>
-        )}
+        ) : !loading ? (
+          <motion.p variants={itemVariants}>
+            No hay sets para mostrar.
+          </motion.p>
+        ) : null}
       </motion.div>
       {sets.length > 0 && (
-        <motion.div className="mt-4" variants={itemVariants}>
-          <CSVLink
-            data={csvData}
-            filename={`sets_${playerId}.csv`}
-            className="btn btn-success"
-          >
+        <motion.div className="mt-3" variants={itemVariants}>
+          <CSVLink data={csvData} filename={`sets-${eventId}.csv`}>
             Descargar CSV
           </CSVLink>
         </motion.div>
       )}
-      <motion.div className="mt-4" variants={itemVariants}>
-        <Link to="/" className="btn btn-secondary">
-          Volver al Inicio
-        </Link>
-      </motion.div>
     </motion.div>
   );
 };
