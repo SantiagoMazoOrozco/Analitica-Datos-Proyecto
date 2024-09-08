@@ -24,12 +24,12 @@ const App = () => {
               </li>
               <li className="nav-item">
                 <Link className="nav-link btn btn-light mx-2 custom-btn" to="/page3">
-                  <i className="fas fa-user"></i> Mantenimiento
+                  <i className="fas fa-user"></i> Obtener sets por ID de evento
                 </Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link btn btn-light mx-2 custom-btn" to="/page4">
-                  <i className="fas fa-user"></i> Pagina4
+                  <i className="fas fa-user"></i> Obtener prueba erronea
                 </Link>
               </li>
             </ul>
