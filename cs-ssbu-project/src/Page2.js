@@ -56,7 +56,28 @@ const Page2 = () => {
       <motion.div className="mb-3" variants={itemVariants}>
         <input
           type="text"
-          className="form-control"
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           value={tournamentName}
           onChange={(e) => setTournamentName(e.target.value)}
           placeholder="Ingrese el nombre del torneo"
@@ -75,6 +96,7 @@ const Page2 = () => {
         className="btn btn-primary"
         onClick={handleGetEventId}
         disabled={loading}
+
         variants={itemVariants}
       >
         {loading ? 'Cargando...' : 'Obtener ID del Evento'}

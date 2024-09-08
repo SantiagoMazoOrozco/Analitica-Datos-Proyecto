@@ -24,7 +24,7 @@ const App = () => {
               </li>
               <li className="nav-item">
                 <Link className="nav-link btn btn-light mx-2 custom-btn" to="/page3">
-                  <i className="fas fa-user"></i> Obtener sets por ID de evento
+                  <i className="fas fa-user"></i> Mantenimiento
                 </Link>
               </li>
               <li className="nav-item">
