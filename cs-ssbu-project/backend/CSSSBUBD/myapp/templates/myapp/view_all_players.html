@@ -1,37 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Todos los Jugadores</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
-    <h1>Todos los Jugadores</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Row ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Nickname</th>
-                <th>StartGG User</th>
-                <th>Team</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for player in players %}
-            <tr>
-                <td>{{ player.rowid }}</td>
-                <td>{{ player.first_name }}</td>
-                <td>{{ player.last_name }}</td>
-                <td>{{ player.nickname }}</td>
-                <td>{{ player.startgg_user }}</td>
-                <td>{{ player.team }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">No hay jugadores disponibles.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="container mt-5">
+        <h1 class="text-center">Lista de Jugadores</h1>
+        <input class="form-control" id="playerSearch" type="text" placeholder="Buscar en la tabla..." onkeyup="filterTable()">
+        <br>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Nickname</th>
+                    <th>Country</th>
+                    <th>Zone</th>
+                    <th>City</th>
+                    <th>Team</th>
+                    <th>Secundary Team</th>
+                    <th>Play Offline?</th>
+                    <th>Play Online?</th>
+                    <th>Main Character</th>
+                    <th>Second Option Player</th>
+                    <th>Third Option Player</th>
+                    <th>Twitter (X)</th>
+                    <th>Instagram</th>
+                    <th>TikTok</th>
+                    <th>User Startgg</th>
+                    <th>Code Startgg</th>
+                    <th>Url StartGG</th>
+                    <th>Url Smashdata</th>
+                    <th>Combined Teams</th>
+                    <th>Combined Characters</th>
+                    <th>Logo Team 1</th>
+                    <th>Logo Team 2</th>
+                    <th>Logo Main</th>
+                    <th>Logo 2</th>
+                    <th>Logo 3</th>
+                </tr>
+            </thead>
+            <tbody id="playerTable">
+                {% for player in players %}
+                <tr>
+                    <td>{{ player.first_name }}</td>
+                    <td>{{ player.last_name }}</td>
+                    <td>{{ player.nickname }}</td>
+                    <td>{{ player.country }}</td>
+                    <td>{{ player.zone }}</td>
+                    <td>{{ player.city }}</td>
+                    <td>{{ player.team }}</td>
+                    <td>{{ player.secundary_team }}</td>
+                    <td>{{ player.play_offline }}</td>
+                    <td>{{ player.play_online }}</td>
+                    <td>{{ player.main_character }}</td>
+                    <td>{{ player.second_option_player }}</td>
+                    <td>{{ player.third_option_player }}</td>
+                    <td>{{ player.twitter }}</td>
+                    <td>{{ player.instagram }}</td>
+                    <td>{{ player.tiktok }}</td>
+                    <td>{{ player.user_startgg }}</td>
+                    <td>{{ player.code_startgg }}</td>
+                    <td>{{ player.url_startgg }}</td>
+                    <td>{{ player.url_smashdata }}</td>
+                    <td>{{ player.combined_teams }}</td>
+                    <td>{{ player.combined_characters }}</td>
+                    <td>{{ player.logo_team_1 }}</td>
+                    <td>{{ player.logo_team_2 }}</td>
+                    <td>{{ player.logo_main }}</td>
+                    <td>{{ player.logo_2 }}</td>
+                    <td>{{ player.logo_3 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function filterTable() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("playerSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("playerTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                tr[i].style.display = "none";
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>

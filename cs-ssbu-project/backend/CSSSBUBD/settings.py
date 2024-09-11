@@ -60,7 +60,7 @@ WSGI_APPLICATION = 'CSSSBUBD.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': r'D:\VSCode\Analitica\proyecto\Analitica-Datos-Proyecto\cs-ssbu-project\backend\db\CSDB.db', 
+        'NAME': r'C:\Users\linkm\OneDrive\Documentos\Proyectos\Analisis de Datos\Analitica-Datos-Proyecto\cs-ssbu-project\backend\db\CSDB.db', 
     }
 }
 
