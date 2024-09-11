@@ -57,27 +57,6 @@ const Page2 = () => {
         <input
           type="text"
           
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
           value={tournamentName}
           onChange={(e) => setTournamentName(e.target.value)}
           placeholder="Ingrese el nombre del torneo"
