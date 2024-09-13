@@ -11,102 +11,180 @@
             border-collapse: collapse;
         }
         th, td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
+        }
+        th {
+            min-width: 150px;
+        }
+        td {
+            min-width: 150px;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px;
+            margin-bottom: 10px;
+        }
+        .table-responsive {
+            overflow-x: auto;
         }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Lista de Jugadores</h1>
-        <input class="form-control" id="playerSearch" type="text" placeholder="Buscar en la tabla..." onkeyup="filterTable()">
-        <br>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Nickname</th>
-                    <th>Country</th>
-                    <th>Zone</th>
-                    <th>City</th>
-                    <th>Team</th>
-                    <th>Secundary Team</th>
-                    <th>Play Offline?</th>
-                    <th>Play Online?</th>
-                    <th>Main Character</th>
-                    <th>Second Option Player</th>
-                    <th>Third Option Player</th>
-                    <th>Twitter (X)</th>
-                    <th>Instagram</th>
-                    <th>TikTok</th>
-                    <th>User Startgg</th>
-                    <th>Code Startgg</th>
-                    <th>Url StartGG</th>
-                    <th>Url Smashdata</th>
-                    <th>Combined Teams</th>
-                    <th>Combined Characters</th>
-                    <th>Logo Team 1</th>
-                    <th>Logo Team 2</th>
-                    <th>Logo Main</th>
-                    <th>Logo 2</th>
-                    <th>Logo 3</th>
-                </tr>
-            </thead>
-            <tbody id="playerTable">
-                {% for player in players %}
-                <tr>
-                    <td>{{ player.first_name }}</td>
-                    <td>{{ player.last_name }}</td>
-                    <td>{{ player.nickname }}</td>
-                    <td>{{ player.country }}</td>
-                    <td>{{ player.zone }}</td>
-                    <td>{{ player.city }}</td>
-                    <td>{{ player.team }}</td>
-                    <td>{{ player.secundary_team }}</td>
-                    <td>{{ player.play_offline }}</td>
-                    <td>{{ player.play_online }}</td>
-                    <td>{{ player.main_character }}</td>
-                    <td>{{ player.second_option_player }}</td>
-                    <td>{{ player.third_option_player }}</td>
-                    <td>{{ player.twitter }}</td>
-                    <td>{{ player.instagram }}</td>
-                    <td>{{ player.tiktok }}</td>
-                    <td>{{ player.user_startgg }}</td>
-                    <td>{{ player.code_startgg }}</td>
-                    <td>{{ player.url_startgg }}</td>
-                    <td>{{ player.url_smashdata }}</td>
-                    <td>{{ player.combined_teams }}</td>
-                    <td>{{ player.combined_characters }}</td>
-                    <td>{{ player.logo_team_1 }}</td>
-                    <td>{{ player.logo_team_2 }}</td>
-                    <td>{{ player.logo_main }}</td>
-                    <td>{{ player.logo_2 }}</td>
-                    <td>{{ player.logo_3 }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <!-- Búsqueda general -->
+        <input class="form-control mb-3" id="generalSearch" type="text" placeholder="Buscar en todas las columnas..." onkeyup="filterGeneral()">
+
+        <!-- Contenedor con desplazamiento horizontal -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="text" id="filterFirstName" onkeyup="filterTable(0)" placeholder="Buscar por Nombre"></th>
+                        <th><input type="text" id="filterLastName" onkeyup="filterTable(1)" placeholder="Buscar por Apellido"></th>
+                        <th><input type="text" id="filterNickname" onkeyup="filterTable(2)" placeholder="Buscar por Apodo"></th>
+                        <th><input type="text" id="filterCountry" onkeyup="filterTable(3)" placeholder="Buscar por País"></th>
+                        <th><input type="text" id="filterZone" onkeyup="filterTable(4)" placeholder="Buscar por Zona"></th>
+                        <th><input type="text" id="filterCity" onkeyup="filterTable(5)" placeholder="Buscar por Ciudad"></th>
+                        <th><input type="text" id="filterTeam" onkeyup="filterTable(6)" placeholder="Buscar por Equipo"></th>
+                        <th><input type="text" id="filterSecundaryTeam" onkeyup="filterTable(7)" placeholder="Buscar por Segundo Equipo"></th>
+                        <th><input type="text" id="filterPlayOffline" onkeyup="filterTable(8)" placeholder="Buscar por Offline"></th>
+                        <th><input type="text" id="filterPlayOnline" onkeyup="filterTable(9)" placeholder="Buscar por Online"></th>
+                        <th><input type="text" id="filterMainCharacter" onkeyup="filterTable(10)" placeholder="Buscar por Personaje Principal"></th>
+                        <th><input type="text" id="filterSecondOptionPlayer" onkeyup="filterTable(11)" placeholder="Segunda Opción"></th>
+                        <th><input type="text" id="filterThirdOptionPlayer" onkeyup="filterTable(12)" placeholder="Tercera Opción"></th>
+                        <th><input type="text" id="filterTwitter" onkeyup="filterTable(13)" placeholder="Twitter (X)"></th>
+                        <th><input type="text" id="filterInstagram" onkeyup="filterTable(14)" placeholder="Instagram"></th>
+                        <th><input type="text" id="filterTikTok" onkeyup="filterTable(15)" placeholder="TikTok"></th>
+                        <th><input type="text" id="filterUserStartgg" onkeyup="filterTable(16)" placeholder="Usuario Start.gg"></th>
+                        <th><input type="text" id="filterCodeStartgg" onkeyup="filterTable(17)" placeholder="Código Start.gg (Formato - c40d0715)"></th>
+                        <th><input type="text" id="filterUrlStartGG" onkeyup="filterTable(18)" placeholder="Url StartGG"></th>
+                        <th><input type="text" id="filterUrlSmashdata" onkeyup="filterTable(19)" placeholder="Url Smashdata"></th>
+                        <th><input type="text" id="filterCombinedTeams" onkeyup="filterTable(20)" placeholder="Equipos Combinados"></th>
+                        <th><input type="text" id="filterCombinedCharacters" onkeyup="filterTable(21)" placeholder="Personajes Combinados"></th>
+                        <th><input type="text" id="filterLogoTeam1" onkeyup="filterTable(22)" placeholder="Logo Equipo 1"></th>
+                        <th><input type="text" id="filterLogoTeam2" onkeyup="filterTable(23)" placeholder="Logo Equipo 2"></th>
+                        <th><input type="text" id="filterLogoMain" onkeyup="filterTable(24)" placeholder="Logo Principal"></th>
+                        <th><input type="text" id="filterLogo2" onkeyup="filterTable(25)" placeholder="Logo 2"></th>
+                        <th><input type="text" id="filterLogo3" onkeyup="filterTable(26)" placeholder="Logo 3"></th>
+                    </tr>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Nickname</th>
+                        <th>Country</th>
+                        <th>Zone</th>
+                        <th>City</th>
+                        <th>Team</th>
+                        <th>Secundary Team</th>
+                        <th>Play Offline?</th>
+                        <th>Play Online?</th>
+                        <th>Main Character</th>
+                        <th>Second Option Player</th>
+                        <th>Third Option Player</th>
+                        <th>Twitter (X)</th>
+                        <th>Instagram</th>
+                        <th>TikTok</th>
+                        <th>User Startgg</th>
+                        <th>Code Startgg (Formato - c40d0715)</th>
+                        <th>Url StartGG</th>
+                        <th>Url Smashdata</th>
+                        <th>Combined Teams</th>
+                        <th>Combined Characters</th>
+                        <th>Logo Team 1</th>
+                        <th>Logo Team 2</th>
+                        <th>Logo Main</th>
+                        <th>Logo 2</th>
+                        <th>Logo 3</th>
+                    </tr>
+                </thead>
+                <tbody id="playerTable">
+                    {% for player in players %}
+                    <tr>
+                        <td>{{ player.first_name }}</td>
+                        <td>{{ player.last_name }}</td>
+                        <td>{{ player.nickname }}</td>
+                        <td>{{ player.country }}</td>
+                        <td>{{ player.zone }}</td>
+                        <td>{{ player.city }}</td>
+                        <td>{{ player.team }}</td>
+                        <td>{{ player.secundary_team }}</td>
+                        <td>{{ player.play_offline }}</td>
+                        <td>{{ player.play_online }}</td>
+                        <td>{{ player.main_character }}</td>
+                        <td>{{ player.second_option_player }}</td>
+                        <td>{{ player.third_option_player }}</td>
+                        <td>{{ player.twitter }}</td>
+                        <td>{{ player.instagram }}</td>
+                        <td>{{ player.tiktok }}</td>
+                        <td>{{ player.user_startgg }}</td>
+                        <td>{{ player.code_startgg }}</td>
+                        <td>{{ player.url_startgg }}</td>
+                        <td>{{ player.url_smashdata }}</td>
+                        <td>{{ player.combined_teams }}</td>
+                        <td>{{ player.combined_characters }}</td>
+                        <td>{{ player.logo_team_1 }}</td>
+                        <td>{{ player.logo_team_2 }}</td>
+                        <td>{{ player.logo_main }}</td>
+                        <td>{{ player.logo_2 }}</td>
+                        <td>{{ player.logo_3 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        function filterTable() {
+        // Filtro por columna
+        function filterTable(columnIndex) {
+            var input, filter, table, tr, td, i, txtValue;
+            table = document.getElementById("playerTable");
+            tr = table.getElementsByTagName("tr");
+
+            input = document.getElementById("filter" + getColumnName(columnIndex));
+            filter = input.value.toUpperCase();
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[columnIndex];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Obtener nombre de columna para los filtros
+        function getColumnName(columnIndex) {
+            var columnNames = ["FirstName", "LastName", "Nickname", "Country", "Zone", "City", "Team", "SecundaryTeam", "PlayOffline", "PlayOnline", "MainCharacter", "SecondOptionPlayer", "ThirdOptionPlayer", "Twitter", "Instagram", "TikTok", "UserStartgg", "CodeStartgg", "UrlStartGG", "UrlSmashdata", "CombinedTeams", "CombinedCharacters", "LogoTeam1", "LogoTeam2", "LogoMain", "Logo2", "Logo3"];
+            return columnNames[columnIndex];
+        }
+
+        // Filtro general
+        function filterGeneral() {
             var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById("playerSearch");
+            input = document.getElementById("generalSearch");
             filter = input.value.toUpperCase();
             table = document.getElementById("playerTable");
             tr = table.getElementsByTagName("tr");
 
             for (i = 0; i < tr.length; i++) {
-                tr[i].style.display = "none";
+                tr[i].style.display = "none"; // Inicialmente ocultar todas las filas
                 td = tr[i].getElementsByTagName("td");
                 for (j = 0; j < td.length; j++) {
                     if (td[j]) {
                         txtValue = td[j].textContent || td[j].innerText;
                         if (txtValue.toUpperCase().indexOf(filter) > -1) {
                             tr[i].style.display = "";
-                            break;
+                            break; // Terminar el bucle si se encuentra una coincidencia
                         }
                     }
                 }
