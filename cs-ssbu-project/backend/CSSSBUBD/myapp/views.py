@@ -86,7 +86,7 @@ def view_all_players(request):
                 "Instagram" AS instagram, 
                 "TikTok" AS tiktok, 
                 "User Startgg" AS user_startgg, 
-                "Code Startgg" AS code_startgg, 
+                "Code Startgg (Formato - c40d0715)" AS code_startgg, 
                 "Url StartGG" AS url_startgg, 
                 "Url Smashdata" AS url_smashdata, 
                 "Combined Teams" AS combined_teams, 
