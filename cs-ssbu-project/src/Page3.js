@@ -2,21 +2,21 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
-import { getSetsByPlayer } from './SetByPlayer';
+import { getSetsByEvent } from './SetByTournament';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Page3 = () => {
-  const [playerId, setPlayerId] = useState('');
+  const [EventId, setEventId] = useState('');
   const [limit, setLimit] = useState(5); // Valor por defecto de 5 sets
   const [sets, setSets] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleGetSetsByPlayer = async () => {
+  const handleGetSetsByEvent = async () => {
     setLoading(true);
     setSets([]);
 
     try {
-      const result = await getSetsByPlayer(playerId, limit);
+      const result = await getSetsByEvent(EventId, limit);
       setSets(result);
     } catch (error) {
       console.error('Error:', error);
@@ -58,15 +58,15 @@ const Page3 = () => {
       animate="visible"
     >
       <motion.h1 className="text-center mb-4" variants={itemVariants}>
-        Obtener Sets por Jugador
+        Obtener Sets por Evento
       </motion.h1>
       <motion.div className="mb-3" variants={itemVariants}>
         <input
           type="text"
           className="form-control"
-          value={playerId}
-          onChange={(e) => setPlayerId(e.target.value)}
-          placeholder="Ingrese el ID del jugador"
+          value={EventId}
+          onChange={(e) => setEventId(e.target.value)}
+          placeholder="Ingrese el ID del evento"
         />
       </motion.div>
       <motion.div className="mb-3" variants={itemVariants}>
@@ -80,7 +80,7 @@ const Page3 = () => {
       </motion.div>
       <motion.button
         className="btn btn-primary"
-        onClick={handleGetSetsByPlayer}
+        onClick={handleGetSetsByEvent}
         disabled={loading}
         variants={itemVariants}
       >
@@ -90,7 +90,7 @@ const Page3 = () => {
         {sets.length > 0 ? (
           <ul>
             {sets.map(set => (
-              <li key={set.id} style={{ color: 'black' }}>
+              <li key={set.id} style={{ color: 'black' }}> {/* Asegúrate de que el color del texto sea negro */}
                 <p><strong>Display Score:</strong> {set.displayScore}</p>
                 <p><strong>Event Name:</strong> {set.event.name}</p>
                 <p><strong>Tournament Name:</strong> {set.event.tournament.name}</p>
@@ -105,7 +105,7 @@ const Page3 = () => {
         <motion.div className="mt-4" variants={itemVariants}>
           <CSVLink
             data={csvData}
-            filename={`sets_${playerId}.csv`}
+            filename={`sets_${EventId}.csv`}
             className="btn btn-success"
           >
             Descargar CSV
