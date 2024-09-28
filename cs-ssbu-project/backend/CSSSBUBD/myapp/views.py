@@ -144,3 +144,177 @@ def player_delete(request, pk):
         player.delete()
         return redirect('player_list')
     return render(request, 'player_confirm_delete.html', {'player': player})
+
+#API CONSULTAS
+
+# Id
+
+from django.http import JsonResponse
+from .api.getEventId import get_event_id
+
+def get_event_id_view(request):
+    tournament_name = request.GET.get('tournament_name')
+    event_name = request.GET.get('event_name')
+
+    # Depuración para verificar si los parámetros se reciben correctamente
+    if not tournament_name or not event_name:
+        return JsonResponse({'error': 'Faltan parámetros o son inválidos'}, status=400)
+    
+    try:
+        # Verifica qué valores están siendo pasados
+        print(f"Tournament Name: {tournament_name}, Event Name: {event_name}")
+        
+        event_id = get_event_id(tournament_name, event_name)
+        return JsonResponse({'event_id': event_id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+#Resultados:
+# myapp/views.py
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import requests
+import json
+import os
+import time
+import traceback
+
+# Cargar variables de entorno
+startgg_url = "https://api.start.gg/gql/alpha"
+stargg_key = os.getenv("REACT_APP_STARTGG_API_KEY")
+
+def delay(seconds):
+    time.sleep(seconds)
+
+@csrf_exempt
+def get_event_results(request):
+    if request.method == 'GET':
+        try:
+            # Obtener el eventId de los parámetros de consulta
+            event_id = request.GET.get('eventId')
+            if not event_id:
+                return JsonResponse({'error': 'Event ID is required'}, status=400)
+
+            # Obtener detalles del evento
+            response = requests.post(startgg_url, json={
+                "query": """
+                query EventDetails($eventId: ID!) { 
+                    event(id: $eventId) {
+                        name
+                        startAt
+                    }
+                }
+                """,
+                "variables": {
+                    "eventId": event_id
+                }
+            }, headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": f"Bearer {stargg_key}"
+            })
+
+            event_data = response.json()
+            print('Respuesta completa de la API para EventDetails:', event_data)  # Agrega esta línea para ver la respuesta completa
+
+            if not event_data.get('data') or not event_data['data'].get('event'):
+                return JsonResponse({'error': 'Event not found: ' + json.dumps(event_data)}, status=404)
+
+            event_details = event_data['data']['event']
+            tournament_name = event_details['name']
+            tournament_date = time.strftime('%Y-%m-%d', time.localtime(event_details['startAt']))
+            tournament_location = 'Ubicación no disponible'  # Puedes actualizar esto si tienes otra fuente para la ubicación
+
+            num_entrants = 0
+            num_entrants_found = 0
+            page_number = 1
+            event_results = []
+
+            # Primera solicitud para obtener el número total de sets (o participantes)
+            response = requests.post(startgg_url, json={
+                "query": """
+                query EventSets($eventId: ID!) { 
+                    event(id: $eventId) {
+                        sets(sortType: STANDARD) {
+                            pageInfo { total }
+                        }
+                    }
+                }
+                """,
+                "variables": {
+                    "eventId": event_id
+                }
+            }, headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": f"Bearer {stargg_key}"
+            })
+
+            data = response.json()
+            print('Respuesta completa de la API para EventSets:', data)  # Agrega esta línea para ver la respuesta completa
+
+            if not data.get('data') or not data['data'].get('event') or not data['data']['event'].get('sets') or not data['data']['event']['sets'].get('pageInfo'):
+                return JsonResponse({'error': 'Unexpected response data for EventSets: ' + json.dumps(data)}, status=500)
+
+            num_entrants = data['data']['event']['sets']['pageInfo']['total']
+            delay(1)
+
+            # Bucle para obtener los resultados del evento
+            while num_entrants_found < num_entrants:
+                response = requests.post(startgg_url, json={
+                    "query": """
+                    query EventStandings($eventId: ID!, $page: Int!, $perPage: Int!) { 
+                        event(id: $eventId) {
+                            standings(query: { perPage: $perPage, page: $page }) {
+                                nodes {
+                                    placement
+                                    entrant { name }
+                                }
+                            }
+                        }
+                    }
+                    """,
+                    "variables": {
+                        "eventId": event_id,
+                        "page": page_number,
+                        "perPage": 50
+                    }
+                }, headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {stargg_key}"
+                })
+
+                data = response.json()
+                print('Respuesta completa de la API para EventStandings:', data)  # Agrega esta línea para ver la respuesta completa
+
+                if not data.get('data') or not data['data'].get('event') or not data['data']['event'].get('standings') or not data['data']['event']['standings'].get('nodes'):
+                    print('Unexpected response data for EventStandings:', data)  # Agrega esta línea para ver la respuesta inesperada
+                    break  # Salir del bucle si no hay más datos disponibles
+
+                nodes = data['data']['event']['standings']['nodes']
+                if not nodes:
+                    break
+                for node in nodes:
+                    event_results.append({
+                        'player': node['entrant']['name'],
+                        'placement': node['placement']
+                    })
+                num_entrants_found += len(nodes)
+
+                page_number += 1
+                delay(1)
+
+            return JsonResponse({
+                'tournamentName': tournament_name,
+                'tournamentLocation': tournament_location,
+                'tournamentDate': tournament_date,
+                'eventResults': event_results
+            })
+
+        except Exception as e:
+            print('Error:', str(e))  # Agrega esta línea para ver el error en la consola
+            print(traceback.format_exc())  # Agrega esta línea para ver el traceback completo
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid method'}, status=405)
