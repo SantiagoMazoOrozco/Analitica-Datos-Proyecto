@@ -13,12 +13,12 @@ const App = () => {
           <nav>
             <ul className="nav justify-content-center">
               <li className="nav-item">
-                <Link className="nav-link btn btn-light mx-2 custom-btn" to="/page1">
+                <Link className="nav-link btn btn-light mx-2 custom-btn" to="/getResultPage">
                   <i className="fas fa-chart-bar"></i> Obtener Resultados
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link btn btn-light mx-2 custom-btn" to="/page2">
+                <Link className="nav-link btn btn-light mx-2 custom-btn" to="/getEventIdPage">
                   <i className="fas fa-id-card"></i> Obtener ID
                 </Link>
               </li>

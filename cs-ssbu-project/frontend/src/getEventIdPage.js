@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import getEventId from './api/api'; // Asegúrate de que la ruta sea la correcta
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Page2 = () => {
+const GetEventIdPage = () => {
   const [tournamentName, setTournamentName] = useState('');
   const [eventName, setEventName] = useState('');
   const [result, setResult] = useState('');
@@ -85,4 +85,4 @@ const Page2 = () => {
   );
 };
 
-export default Page2;
+export default GetEventIdPage;

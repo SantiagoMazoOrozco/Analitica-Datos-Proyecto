@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { CSVLink } from 'react-csv';
 import { getEventDetails, getEventResults } from './api/api_result'; // Importa las funciones desde api/api_result.js
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Page1 = () => {
+const GetResultPage = () => {
   const [eventId, setEventId] = useState('');
   const [tournamentName, setTournamentName] = useState('');
   const [tournamentDate, setTournamentDate] = useState('');
@@ -30,19 +31,26 @@ const Page1 = () => {
   };
 
   return (
-    <div>
-      <h1>Page 1</h1>
-      <input
-        type="text"
-        placeholder="Event ID"
-        value={eventId}
-        onChange={(e) => setEventId(e.target.value)}
-      />
-      <button onClick={handleGetResults}>Get Results</button>
-      {loading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
+    <div className="container mt-5">
+      <h1 className="text-center mb-4">Get Result Page</h1>
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Event ID"
+          value={eventId}
+          onChange={(e) => setEventId(e.target.value)}
+        />
+      </div>
+      <div className="text-center mb-4">
+        <button className="btn btn-primary" onClick={handleGetResults} disabled={loading}>
+          {loading ? 'Cargando...' : 'Get Results'}
+        </button>
+      </div>
+      {loading && <p className="text-center">Loading...</p>}
+      {error && <p className="text-center text-danger">{error}</p>}
       {tournamentName && (
-        <div>
+        <div className="text-center mb-4">
           <h2>{tournamentName}</h2>
           <p>{tournamentDate}</p>
           <p>{tournamentLocation}</p>
@@ -50,10 +58,12 @@ const Page1 = () => {
       )}
       {results.length > 0 && (
         <div>
-          <CSVLink data={results} filename={`${tournamentName}_results.csv`}>
-            Download CSV
-          </CSVLink>
-          <table>
+          <div className="text-center mb-4">
+            <CSVLink className="btn btn-success" data={results} filename={`${tournamentName}_results.csv`}>
+              Download CSV
+            </CSVLink>
+          </div>
+          <table className="table table-striped">
             <thead>
               <tr>
                 <th>Player</th>
@@ -75,4 +85,4 @@ const Page1 = () => {
   );
 };
 
-export default Page1;
+export default GetResultPage;

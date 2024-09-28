@@ -2,9 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import App from './App';
-import Page1 from './Page1'; // Verifica que este archivo exporte Page1 correctamente
-import Page2 from './Page2'; // Verifica que este archivo exporte Page2 correctamente
-
+import GetResultPage from './getResultPage';
+import GetEventIdPage from './getEventIdPage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -12,8 +11,8 @@ root.render(
     <Router>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/page1" element={<Page1 />} />
-        <Route path="/page2" element={<Page2 />} />
+        <Route path="/getResultPage" element={<GetResultPage />} />
+        <Route path="/getEventIdPage" element={<GetEventIdPage />} />
       </Routes>
     </Router>
   </React.StrictMode>
