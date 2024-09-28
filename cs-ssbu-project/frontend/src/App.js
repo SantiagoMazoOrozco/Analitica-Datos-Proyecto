@@ -23,6 +23,9 @@ const App = () => {
                 </Link>
               </li>
               <li className="nav-item">
+                <Link className="nav-link btn btn-light mx-2 custom-btn" to="/getSetsByTournament">
+                  <i className="fas fa-trophy"></i> Obtener Sets por Torneo
+                </Link>
               </li>
             </ul>
           </nav>

@@ -318,3 +318,100 @@ def get_event_results(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
+#setbytorunemante 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import requests
+import os
+import time
+
+# Cargar variables de entorno
+startgg_url = "https://api.start.gg/gql/alpha"
+startgg_key = os.getenv("REACT_APP_STARTGG_API_KEY")
+
+def delay(seconds):
+    time.sleep(seconds)
+
+@csrf_exempt
+def get_sets_by_tournament_view(request):
+    if request.method == 'GET':
+        try:
+            # Obtener el eventId de los parámetros de consulta
+            event_id = request.GET.get('eventId')
+            limit = int(request.GET.get('limit', 5))  # Limitar el número de sets a obtener
+            if not event_id:
+                return JsonResponse({'error': 'Event ID is required'}, status=400)
+
+            sets = []
+            page_number = 1
+            total_sets = 0
+
+            def process_nodes(nodes):
+                nonlocal total_sets
+                for node in nodes:
+                    if total_sets < limit:
+                        sets.append(node)
+                        total_sets += 1
+
+            while total_sets < limit:
+                query = """
+                query EventSets($eventId: ID!, $page: Int!, $perPage: Int!) {
+                    event(id: $eventId) {
+                        sets(page: $page, perPage: $perPage) {
+                            nodes {
+                                id
+                                displayScore
+                                phaseGroup {
+                                    phase {
+                                        name
+                                    }
+                                }
+                                event {
+                                    name
+                                    tournament {
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                """
+
+                variables = {
+                    'eventId': event_id,
+                    'page': page_number,
+                    'perPage': limit
+                }
+
+                response = requests.post(
+                    startgg_url,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'Authorization': f'Bearer {startgg_key}'
+                    },
+                    json={'query': query, 'variables': variables}
+                )
+
+                response.raise_for_status()
+                data = response.json()
+
+                if 'errors' in data:
+                    raise Exception(', '.join(error['message'] for error in data['errors']))
+
+                nodes = data['data']['event']['sets']['nodes']
+                process_nodes(nodes)
+
+                if len(nodes) < limit:
+                    break
+
+                page_number += 1
+                delay(1)
+
+            return JsonResponse(sets, safe=False)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid method'}, status=405)
