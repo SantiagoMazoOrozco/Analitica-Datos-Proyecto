@@ -63,6 +63,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db' / 'CSDB.db',
+        'OPTIONS': {
+            'timeout': 20,  # Aumenta el tiempo de espera a 20 segundos
+        }
     }
 }
 

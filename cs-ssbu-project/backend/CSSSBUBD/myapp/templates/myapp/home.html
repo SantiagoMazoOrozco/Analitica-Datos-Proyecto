@@ -1,3 +1,4 @@
+<!-- templates/myapp/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +14,18 @@
         <ul class="list-group">
             <li class="list-group-item"><a href="{% url 'player_create' %}">Crear Jugador</a></li>
             <li class="list-group-item"><a href="{% url 'view_all_players' %}">Ver Todos los Jugadores</a></li>
+            <li class="list-group-item">
+                <a href="#crudTournamentsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">CRUD Tournaments</a>
+                <ul class="collapse list-unstyled" id="crudTournamentsSubmenu">
+                    <li class="list-group-item"><a href="{% url 'create_tournament' %}">Crear Torneo</a></li>
+                    <li class="list-group-item"><a href="{% url 'upload_excel' %}">Cargar Archivo de Excel</a></li>
+                    <li class="list-group-item"><a href="{% url 'view_colombia_tournament' %}">Ver Torneos en Colombia</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
