@@ -5,7 +5,7 @@ import requests
 import json
 import pandas as pd
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 from django.db import transaction
@@ -113,57 +113,62 @@ def player_delete(request, pk):
 
 #Vista Torneos
 
+@csrf_exempt
 def view_colombia_tournament(request):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT 
-                "Tournament Name" AS tournament_name, 
-                "Winner" AS winner, 
-                "Attendees" AS attendees, 
-                "Zona" AS zona, 
-                "Pais" AS pais, 
-                "Region" AS region, 
-                "Ciudad" AS ciudad, 
-                "Direccion" AS direccion, 
-                "Date" AS date, 
-                "ID" AS id, 
-                "URL" AS url
-            FROM "main"."Colombia Tournament"
-            ORDER BY "Tournament Name" ASC
-            LIMIT 49999
-            OFFSET 0;
-        """)
-        rows = cursor.fetchall()
-        columns = [col[0] for col in cursor.description]
-    
-    tournaments = [dict(zip(columns, row)) for row in rows]
-    
-    return render(request, 'myapp/tournaments/view_colombia_tournament.html', {'tournaments': tournaments})
+    if request.method == 'GET':
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    "Tournament Name" AS tournament_name, 
+                    "Winner" AS winner, 
+                    "Attendees" AS attendees, 
+                    "Zona" AS zona, 
+                    "Pais" AS pais, 
+                    "Region" AS region, 
+                    "Ciudad" AS ciudad, 
+                    "Direccion" AS direccion, 
+                    "Date" AS date, 
+                    "ID" AS id, 
+                    "URL" AS url
+                FROM "main"."Colombia Tournament"
+                ORDER BY "Tournament Name" ASC
+                LIMIT 49999
+                OFFSET 0;
+            """)
+            rows = cursor.fetchall()
+            columns = [col[0] for col in cursor.description]
+        
+        tournaments = [dict(zip(columns, row)) for row in rows]
+        return render(request, 'myapp/tournaments/view_colombia_tournament.html', {'tournaments': tournaments})
 
-@transaction.atomic
-def create_tournament(request):
-    if request.method == 'POST':
-        form = TournamentForm(request.POST)
+    elif request.method == 'POST':
+        form = TournamentForm(json.loads(request.body))
         if form.is_valid():
-            try:
-                with connection.cursor() as cursor:
-                    cursor.execute("""
-                        INSERT INTO "Colombia Tournament" (
-                            "Tournament Name", "Winner", "Attendees", "Zona", "Pais", "Region", "Ciudad", "Direccion", "Date", "ID", "URL"
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        ON CONFLICT ("ID") DO NOTHING;
-                    """, [
-                        form.cleaned_data['tournament_name'], form.cleaned_data['winner'], form.cleaned_data['attendees'], form.cleaned_data['zona'], form.cleaned_data['pais'], form.cleaned_data['region'], form.cleaned_data['ciudad'], form.cleaned_data['direccion'], form.cleaned_data['date'], form.cleaned_data['id'], form.cleaned_data['url']
-                    ])
-            except Exception as e:
-                transaction.set_rollback(True)
-                raise e
-            finally:
-                close_old_connections()
-            return redirect('view_colombia_tournament')
+            form.save()
+            return JsonResponse({'message': 'Torneo creado exitosamente'}, status=201)
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+
+    elif request.method == 'PUT':
+        data = json.loads(request.body)
+        tournament_id = data.get('id')
+        tournament = get_object_or_404(Tournament, id=tournament_id)
+        form = TournamentForm(data, instance=tournament)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': 'Torneo actualizado exitosamente'}, status=200)
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+
+    elif request.method == 'DELETE':
+        data = json.loads(request.body)
+        tournament_id = data.get('id')
+        tournament = get_object_or_404(Tournament, id=tournament_id)
+        tournament.delete()
+        return JsonResponse({'message': 'Torneo eliminado exitosamente'}, status=200)
+
     else:
-        form = TournamentForm()
-    return render(request, 'myapp/tournaments/create_tournament.html', {'form': form})
+        return HttpResponseBadRequest('Método no permitido')
 #Vista Subir Archivo Excell Torneos
 def upload_excel(request):
     if request.method == 'POST':
