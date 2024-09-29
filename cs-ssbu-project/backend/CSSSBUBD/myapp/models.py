@@ -39,11 +39,11 @@ class Player(models.Model):
     def __str__(self):
         return f"{self.nickname} ({self.first_name} {self.last_name})"
 class Set(models.Model):
-    first_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100, null=True, blank=True)
-    nickname = models.CharField(max_length=100, null=True, blank=True)
-    startgg_user = models.CharField(max_length=100, null=True, blank=True)
-    team = models.CharField(max_length=100, null=True, blank=True)
+    id = models.CharField(max_length=100, primary_key=True)
+    display_score = models.CharField(max_length=100, null=True, blank=True, default='')
+    phase_name = models.CharField(max_length=100, null=True, blank=True, default='')
+    event_name = models.CharField(max_length=100, null=True, blank=True, default='')
+    tournament_name = models.CharField(max_length=100, null=True, blank=True, default='')
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.id} - {self.display_score}"

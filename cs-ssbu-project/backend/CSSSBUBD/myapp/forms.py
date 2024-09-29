@@ -1,11 +1,13 @@
 from django import forms
+from .models import Set
 from .models import Player
+
+
 
 class PlayerForm(forms.ModelForm):
     class Meta:
         model = Player
         fields = '__all__'
-
 #Subir Archivo Excell
 
 class UploadFileForm(forms.Form):
@@ -23,4 +25,9 @@ class TournamentForm(forms.Form):
     direccion = forms.CharField(label='Direccion', max_length=100)
     date = forms.CharField(label='Date', max_length=100)
     id = forms.IntegerField(label='ID')
-    url = forms.CharField(label='URL', max_length=200)    
+    url = forms.CharField(label='URL', max_length=200) 
+
+class SetForm(forms.ModelForm):
+    class Meta:
+        model = Set
+        fields = ['id', 'display_score', 'phase_name', 'event_name', 'tournament_name']   
