@@ -12,14 +12,26 @@
         <h1 class="text-center">Bienvenido a la Aplicación de Gestión de Jugadores de Smash</h1>
         <p class="text-center">Utiliza las siguientes páginas para interactuar con la base de datos de jugadores:</p>
         <ul class="list-group">
-            <li class="list-group-item"><a href="{% url 'player_create' %}">Crear Jugador</a></li>
-            <li class="list-group-item"><a href="{% url 'view_all_players' %}">Ver Todos los Jugadores</a></li>
+            <li class="list-group-item">
+                <a href="#crudPlayersSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">CRUD Jugadores</a>
+                <ul class="collapse list-unstyled" id="crudPlayersSubmenu">
+                    <li class="list-group-item"><a href="{% url 'player_create' %}">Crear Jugador</a></li>
+                    <li class="list-group-item"><a href="{% url 'view_all_players' %}">Ver Todos los Jugadores</a></li>
+                </ul>
+            </li>
             <li class="list-group-item">
                 <a href="#crudTournamentsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">CRUD Tournaments</a>
                 <ul class="collapse list-unstyled" id="crudTournamentsSubmenu">
                     <li class="list-group-item"><a href="{% url 'create_tournament' %}">Crear Torneo</a></li>
                     <li class="list-group-item"><a href="{% url 'upload_excel' %}">Cargar Archivo de Excel</a></li>
                     <li class="list-group-item"><a href="{% url 'view_colombia_tournament' %}">Ver Torneos en Colombia</a></li>
+                </ul>
+            </li>
+            <li class="list-group-item">
+                <a href="#crudSetsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">CRUD Sets</a>
+                <ul class="collapse list-unstyled" id="crudSetsSubmenu">
+                    <li class="list-group-item"><a href="{% url 'set_create' %}">Crear Set</a></li>
+                    <li class="list-group-item"><a href="{% url 'view_all_sets' %}">Ver Todos los Sets</a></li>
                 </ul>
             </li>
         </ul>

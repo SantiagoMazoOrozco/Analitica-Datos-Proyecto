@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sets List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            min-width: 150px;
+        }
+        td {
+            min-width: 150px;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px;
+            margin-bottom: 10px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Lista de Sets</h1>
+
+        <!-- Búsqueda general -->
+        <input class="form-control mb-3" id="generalSearch" type="text" placeholder="Buscar en todas las columnas..." onkeyup="filterGeneral()">
+
+        <!-- Contenedor con desplazamiento horizontal -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="text" id="filterId" onkeyup="filterTable(0)" placeholder="Buscar por ID"></th>
+                        <th><input type="text" id="filterDisplayScore" onkeyup="filterTable(1)" placeholder="Buscar por Display Score"></th>
+                        <th><input type="text" id="filterPhaseName" onkeyup="filterTable(2)" placeholder="Buscar por Phase Name"></th>
+                        <th><input type="text" id="filterEventName" onkeyup="filterTable(3)" placeholder="Buscar por Event Name"></th>
+                        <th><input type="text" id="filterTournamentName" onkeyup="filterTable(4)" placeholder="Buscar por Tournament Name"></th>
+                    </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Display Score</th>
+                        <th>Phase Name</th>
+                        <th>Event Name</th>
+                        <th>Tournament Name</th>
+                    </tr>
+                </thead>
+                <tbody id="setTable">
+                    {% for set in sets %}
+                    <tr>
+                        <td>{{ set.id }}</td>
+                        <td>{{ set.display_score }}</td>
+                        <td>{{ set.phase_name }}</td>
+                        <td>{{ set.event_name }}</td>
+                        <td>{{ set.tournament_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Filtro por columna
+        function filterTable(columnIndex) {
+            var input, filter, table, tr, td, i, txtValue;
+            table = document.getElementById("setTable");
+            tr = table.getElementsByTagName("tr");
+
+            input = document.getElementById("filter" + getColumnName(columnIndex));
+            filter = input.value.toUpperCase();
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[columnIndex];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Obtener nombre de columna para los filtros
+        function getColumnName(columnIndex) {
+            var columnNames = ["Id", "DisplayScore", "PhaseName", "EventName", "TournamentName"];
+            return columnNames[columnIndex];
+        }
+
+        // Filtro general
+        function filterGeneral() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("generalSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("setTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                tr[i].style.display = "none"; // Inicialmente ocultar todas las filas
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break; // Terminar el bucle si se encuentra una coincidencia
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

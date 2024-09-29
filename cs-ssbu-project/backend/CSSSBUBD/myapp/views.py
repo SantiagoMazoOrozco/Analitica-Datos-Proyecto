@@ -14,6 +14,7 @@ from .forms import UploadFileForm
 from .forms import TournamentForm
 from .forms import PlayerForm
 from .models import Tournament, Event, Player, Set
+from .forms import SetForm
 
 from .api.getEventId import get_event_id
 
@@ -34,6 +35,43 @@ def home(request):
     return render(request, 'myapp/home.html')
 
 
+#Vista sets
+
+def set_list(request):
+    sets = Set.objects.all()
+    return render(request, 'myapp/sets/set_list.html', {'sets': sets})
+
+def set_create(request):
+    if request.method == 'POST':
+        form = SetForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('set_list')
+    else:
+        form = SetForm()
+    return render(request, 'myapp/sets/set_form.html', {'form': form})
+
+def set_update(request, pk):
+    set_instance = get_object_or_404(Set, pk=pk)
+    if request.method == 'POST':
+        form = SetForm(request.POST, instance=set_instance)
+        if form.is_valid():
+            form.save()
+            return redirect('set_list')
+    else:
+        form = SetForm(instance=set_instance)
+    return render(request, 'myapp/sets/set_form.html', {'form': form})
+
+def set_delete(request, pk):
+    set_instance = get_object_or_404(Set, pk=pk)
+    if request.method == 'POST':
+        set_instance.delete()
+        return redirect('set_list')
+    return render(request, 'myapp/sets/set_confirm_delete.html', {'set': set_instance})
+
+def view_all_sets(request):
+    sets = Set.objects.all()
+    return render(request, 'myapp/sets/set_list.html', {'sets': sets})
 #Vista Jugadores
 
 def view_all_players(request):
@@ -81,7 +119,7 @@ def view_all_players(request):
 
 def player_list(request):
     players = Player.objects.all()
-    return render(request, 'player_list.html', {'players': players})
+    return render(request, 'myapp/players/player_list.html', {'players': players})
 
 def player_create(request):
     if request.method == 'POST':
@@ -91,7 +129,7 @@ def player_create(request):
             return redirect('player_list')
     else:
         form = PlayerForm()
-    return render(request, 'player_form.html', {'form': form})
+    return render(request, 'myapp/players/player_form.html', {'form': form})
 
 def player_update(request, pk):
     player = get_object_or_404(Player, pk=pk)
@@ -102,14 +140,14 @@ def player_update(request, pk):
             return redirect('player_list')
     else:
         form = PlayerForm(instance=player)
-    return render(request, 'player_form.html', {'form': form})
+    return render(request, 'myapp/players/player_form.html', {'form': form})
 
 def player_delete(request, pk):
     player = get_object_or_404(Player, pk=pk)
     if request.method == 'POST':
         player.delete()
         return redirect('player_list')
-    return render(request, 'player_confirm_delete.html', {'player': player})
+    return render(request, 'myapp/players/player_confirm_delete.html', {'player': player})
 
 #Vista Torneos
 
