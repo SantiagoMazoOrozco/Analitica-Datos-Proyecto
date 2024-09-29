@@ -15,7 +15,7 @@ const GetEventIdPage = () => {
 
     try {
       const id = await getEventId(tournamentName, eventName);
-      setResult(`Event ID: ${id}`);
+      setResult(id ? `Event ID: ${id}` : 'Event ID no encontrado');
     } catch (error) {
       setResult(`Error: ${error.message}`);
     } finally {

@@ -74,3 +74,16 @@ def get_event_id_view(request):
         return JsonResponse({"event_id": event_id}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+"""def test_get_event_id():
+    tournament_name = "eje-smash-7"
+    event_name = "singles"
+    
+    try:
+        event_id = get_event_id(tournament_name, event_name)
+        print(f"Event ID: {event_id}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+# Ejecutar la función de prueba si el archivo se ejecuta directamente
+if __name__ == "__main__":
+    test_get_event_id()"""

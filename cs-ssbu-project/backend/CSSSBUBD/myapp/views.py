@@ -1,26 +1,19 @@
-import os
-import time
-import traceback
-import requests
-import json
-import pandas as pd
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
-from django.db import transaction
-from django.db import close_old_connections
-from .forms import UploadFileForm
-from .forms import TournamentForm
-from .forms import PlayerForm
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
+from .forms import UploadFileForm, TournamentForm, PlayerForm, SetForm
 from .models import Tournament, Event, Player, Set
-from .forms import SetForm
-
-from .api.getEventId import get_event_id
+import os
+import json
+import time
+import requests
+import pandas as pd
 
 # Constantes
 STARTGG_URL = "https://api.start.gg/gql/alpha"
-STARTGG_KEY = os.getenv("REACT_APP_STARTGG_API_KEY")
+STARTGG_KEY = "204bdde1bb958e691497fa76febad15d"
 
 # Asegúrate de que la clave de la API esté disponible
 if not STARTGG_KEY:
@@ -249,138 +242,61 @@ def upload_excel(request):
         form = UploadFileForm()
     return render(request, 'myapp/upload_excel.html', {'form': form})
 # API Consultas
+
 def get_event_id_view(request):
     tournament_name = request.GET.get('tournament_name')
     event_name = request.GET.get('event_name')
 
     if not tournament_name or not event_name:
         return JsonResponse({'error': 'Faltan parámetros o son inválidos'}, status=400)
+
+    event_slug = f"tournament/{tournament_name}/event/{event_name}"
+    
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {STARTGG_KEY}'
+    }
+    
+    query = """
+    query EventQuery($slug: String) {
+        event(slug: $slug) {
+            id
+            name
+        }
+    }
+    """
+    
+    variables = {
+        'slug': event_slug
+    }
     
     try:
-        event_id = get_event_id(tournament_name, event_name)
+        response = requests.post(
+            STARTGG_URL,
+            headers=headers,
+            json={'query': query, 'variables': variables}
+        )
+        
+        response.raise_for_status()
+        
+        data = response.json()
+        print('API response:', data)
+
+        if 'errors' in data:
+            print('API returned errors:', data['errors'])
+            return JsonResponse({'error': 'Error in API response'}, status=400)
+
+        if 'data' not in data or 'event' not in data['data']:
+            print('Response structure:', data)
+            return JsonResponse({'error': 'Invalid response structure'}, status=400)
+
+        event_id = data['data']['event']['id']
         return JsonResponse({'event_id': event_id})
-    except Exception as e:
+     
+    except requests.exceptions.RequestException as e:
+        print('Error al obtener el ID del evento:', e)
         return JsonResponse({'error': str(e)}, status=500)
-
-@csrf_exempt
-def get_event_results(request):
-    if request.method == 'GET':
-        try:
-            event_id = request.GET.get('eventId')
-            if not event_id:
-                return JsonResponse({'error': 'Event ID is required'}, status=400)
-
-            response = requests.post(STARTGG_URL, json={
-                "query": """
-                query EventDetails($eventId: ID!) { 
-                    event(id: $eventId) {
-                        name
-                        startAt
-                    }
-                }
-                """,
-                "variables": {
-                    "eventId": event_id
-                }
-            }, headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": f"Bearer {STARTGG_KEY}"
-            })
-
-            event_data = response.json()
-            if not event_data.get('data') or not event_data['data'].get('event'):
-                return JsonResponse({'error': 'Event not found: ' + json.dumps(event_data)}, status=404)
-
-            event_details = event_data['data']['event']
-            tournament_name = event_details['name']
-            tournament_date = time.strftime('%Y-%m-%d', time.localtime(event_details['startAt']))
-            tournament_location = 'Ubicación no disponible'
-
-            num_entrants = 0
-            num_entrants_found = 0
-            page_number = 1
-            event_results = []
-
-            response = requests.post(STARTGG_URL, json={
-                "query": """
-                query EventSets($eventId: ID!) { 
-                    event(id: $eventId) {
-                        sets(sortType: STANDARD) {
-                            pageInfo { total }
-                        }
-                    }
-                }
-                """,
-                "variables": {
-                    "eventId": event_id
-                }
-            }, headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Authorization": f"Bearer {STARTGG_KEY}"
-            })
-
-            data = response.json()
-            if not data.get('data') or not data['data'].get('event') or not data['data']['event'].get('sets') or not data['data']['event']['sets'].get('pageInfo'):
-                return JsonResponse({'error': 'Unexpected response data for EventSets: ' + json.dumps(data)}, status=500)
-
-            num_entrants = data['data']['event']['sets']['pageInfo']['total']
-            delay(1)
-
-            while num_entrants_found < num_entrants:
-                response = requests.post(STARTGG_URL, json={
-                    "query": """
-                    query EventStandings($eventId: ID!, $page: Int!, $perPage: Int!) { 
-                        event(id: $eventId) {
-                            standings(query: { perPage: $perPage, page: $page }) {
-                                nodes {
-                                    placement
-                                    entrant { name }
-                                }
-                            }
-                        }
-                    }
-                    """,
-                    "variables": {
-                        "eventId": event_id,
-                        "page": page_number,
-                        "perPage": 50
-                    }
-                }, headers={
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "Authorization": f"Bearer {STARTGG_KEY}"
-                })
-
-                data = response.json()
-                if not data.get('data') or not data['data'].get('event') or not data['data']['event'].get('standings') or not data['data']['event']['standings'].get('nodes'):
-                    break
-
-                nodes = data['data']['event']['standings']['nodes']
-                if not nodes:
-                    break
-                for node in nodes:
-                    event_results.append({
-                        'player': node['entrant']['name'],
-                        'placement': node['placement']
-                    })
-                num_entrants_found += len(nodes)
-
-                page_number += 1
-                delay(1)
-
-            return JsonResponse({
-                'tournamentName': tournament_name,
-                'tournamentLocation': tournament_location,
-                'tournamentDate': tournament_date,
-                'eventResults': event_results
-            })
-
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 @csrf_exempt
 def get_sets_by_tournament_view(request):
@@ -496,3 +412,4 @@ def get_player_by_name(player_name):
         return {'id': player.id, 'name': player.name}
     except Player.DoesNotExist:
         return {}
+    
