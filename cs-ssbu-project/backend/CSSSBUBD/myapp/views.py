@@ -425,6 +425,16 @@ def get_sets_by_tournament_view(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid method'}, status=405)
+def create_tournament(request):
+    if request.method == 'POST':
+        form = TournamentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': 'Torneo creado exitosamente'}, status=201)
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 # Funciones auxiliares
 def get_event_results(event_id):
