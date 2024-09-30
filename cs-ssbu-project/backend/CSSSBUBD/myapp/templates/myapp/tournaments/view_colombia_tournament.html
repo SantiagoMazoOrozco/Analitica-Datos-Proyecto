@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colombia Tournament List</title>
+    <title>Lista de Torneos en Colombia</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         table {
@@ -53,19 +53,19 @@
                         <th><input type="text" id="filterCiudad" onkeyup="filterTable(6)" placeholder="Buscar por Ciudad"></th>
                         <th><input type="text" id="filterDireccion" onkeyup="filterTable(7)" placeholder="Buscar por Dirección"></th>
                         <th><input type="text" id="filterDate" onkeyup="filterTable(8)" placeholder="Buscar por Fecha"></th>
-                        <th><input type="text" id="filterID" onkeyup="filterTable(9)" placeholder="Buscar por ID"></th>
-                        <th><input type="text" id="filterURL" onkeyup="filterTable(10)" placeholder="Buscar por URL"></th>
+                        <th><input type="text" id="filterID" onkeyup="filterTable(10)" placeholder="Buscar por ID"></th>
+                        <th><input type="text" id="filterURL" onkeyup="filterTable(9)" placeholder="Buscar por URL"></th>
                     </tr>
                     <tr>
-                        <th>Tournament Name</th>
-                        <th>Winner</th>
-                        <th>Attendees</th>
+                        <th>Nombre del Torneo</th>
+                        <th>Ganador</th>
+                        <th>Asistentes</th>
                         <th>Zona</th>
-                        <th>Pais</th>
-                        <th>Region</th>
+                        <th>País</th>
+                        <th>Región</th>
                         <th>Ciudad</th>
-                        <th>Direccion</th>
-                        <th>Date</th>
+                        <th>Dirección</th>
+                        <th>Fecha</th>
                         <th>ID</th>
                         <th>URL</th>
                     </tr>
@@ -83,7 +83,7 @@
                         <td>{{ tournament.direccion }}</td>
                         <td>{{ tournament.date }}</td>
                         <td>{{ tournament.id }}</td>
-                        <td>{{ tournament.url }}</td>
+                        <td><a href="{{ tournament.url }}">{{ tournament.url }}</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -116,7 +116,7 @@
 
         // Obtener nombre de columna para los filtros
         function getColumnName(columnIndex) {
-            var columnNames = ["TournamentName", "Winner", "Attendees", "Zona", "Pais", "Region", "Ciudad", "Direccion", "Date", "ID", "URL"];
+            var columnNames = ["TournamentName", "Winner", "Attendees", "Zona", "Pais", "Region", "Ciudad", "Direccion", "Date","ID", "URL"];
             return columnNames[columnIndex];
         }
 

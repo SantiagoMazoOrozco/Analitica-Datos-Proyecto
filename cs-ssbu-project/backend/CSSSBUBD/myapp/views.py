@@ -1,15 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.db import connection
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_GET
 from .forms import UploadFileForm, TournamentForm, PlayerForm, SetForm
 from .models import Tournament, Event, Player, Set
 import os
 import json
+
 import time
 import requests
 import pandas as pd
+import logging
 
 # Constantes
 STARTGG_URL = "https://api.start.gg/gql/alpha"
@@ -25,8 +27,8 @@ def delay(seconds):
 
 # Vistas
 def home(request):
-    return render(request, 'myapp/home.html')
-
+    tournaments = Tournament.objects.all()
+    return render(request, 'myapp/home.html', {'tournaments': tournaments})
 
 #Vista sets
 
@@ -65,7 +67,7 @@ def set_delete(request, pk):
 def view_all_sets(request):
     sets = Set.objects.all()
     return render(request, 'myapp/sets/set_list.html', {'sets': sets})
-#Vista Jugadores
+#Vista Jugadores y sus CRUD
 
 def view_all_players(request):
     with connection.cursor() as cursor:
@@ -147,60 +149,93 @@ def player_delete(request, pk):
 @csrf_exempt
 def view_colombia_tournament(request):
     if request.method == 'GET':
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT 
-                    "Tournament Name" AS tournament_name, 
-                    "Winner" AS winner, 
-                    "Attendees" AS attendees, 
-                    "Zona" AS zona, 
-                    "Pais" AS pais, 
-                    "Region" AS region, 
-                    "Ciudad" AS ciudad, 
-                    "Direccion" AS direccion, 
-                    "Date" AS date, 
-                    "ID" AS id, 
-                    "URL" AS url
-                FROM "main"."Colombia Tournament"
-                ORDER BY "Tournament Name" ASC
-                LIMIT 49999
-                OFFSET 0;
-            """)
-            rows = cursor.fetchall()
-            columns = [col[0] for col in cursor.description]
-        
-        tournaments = [dict(zip(columns, row)) for row in rows]
-        return render(request, 'myapp/tournaments/view_colombia_tournament.html', {'tournaments': tournaments})
-
-    elif request.method == 'POST':
-        form = TournamentForm(json.loads(request.body))
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'message': 'Torneo creado exitosamente'}, status=201)
-        else:
-            return JsonResponse({'errors': form.errors}, status=400)
-
-    elif request.method == 'PUT':
-        data = json.loads(request.body)
-        tournament_id = data.get('id')
-        tournament = get_object_or_404(Tournament, id=tournament_id)
-        form = TournamentForm(data, instance=tournament)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'message': 'Torneo actualizado exitosamente'}, status=200)
-        else:
-            return JsonResponse({'errors': form.errors}, status=400)
-
-    elif request.method == 'DELETE':
-        data = json.loads(request.body)
-        tournament_id = data.get('id')
-        tournament = get_object_or_404(Tournament, id=tournament_id)
-        tournament.delete()
-        return JsonResponse({'message': 'Torneo eliminado exitosamente'}, status=200)
-
+        return get_tournaments(request)
     else:
         return HttpResponseBadRequest('Método no permitido')
-#Vista Subir Archivo Excell Torneos
+
+def get_tournaments(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT 
+                "Tournament_Name" AS tournament_name, 
+                "Winner" AS winner, 
+                "Attendees" AS attendees, 
+                "Zona" AS zona, 
+                "Pais" AS pais, 
+                "Region" AS region, 
+                "Ciudad" AS ciudad, 
+                "Direccion" AS direccion, 
+                "Date" AS date, 
+                "ID" AS id, 
+                "URL" AS url
+            FROM "main"."Colombia Tournament"
+            ORDER BY "Tournament Name" ASC
+            LIMIT 49999
+            OFFSET 0;
+        """)
+        rows = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+    
+    tournaments = [dict(zip(columns, row)) for row in rows]
+    return render(request, 'myapp/tournaments/view_colombia_tournament.html', {'tournaments': tournaments})
+# Configurar el logger
+logger = logging.getLogger(__name__)
+
+@csrf_protect
+def add_tournament(request):
+    if request.method == 'POST':
+        logger.debug("Solicitud POST recibida")
+        form = TournamentForm(request.POST)
+        if form.is_valid():
+            tournament = form.save()
+            logger.debug(f"Torneo guardado: {tournament}")
+            return redirect('view_colombia_tournament')
+        else:
+            logger.error(f"Errores en el formulario: {form.errors}")
+            return render(request, 'myapp/tournaments/create_tournament.html', {'form': form, 'errors': form.errors})
+    
+    logger.debug("Solicitud GET recibida")
+    form = TournamentForm()
+    return render(request, 'myapp/tournaments/create_tournament.html', {'form': form})
+    
+@csrf_protect
+def edit_tournament(request, pk):
+    tournament = get_object_or_404(Tournament, pk=pk)
+    if request.method == 'POST':
+        form = TournamentForm(request.POST, instance=tournament)
+        if form.is_valid():
+            form.save()
+            return redirect('view_colombia_tournament')
+    else:
+        form = TournamentForm(instance=tournament)
+    return render(request, 'myapp/tournaments/edit_tournament.html', {'form': form, 'tournament': tournament})
+
+def enter_tournament_id(request):
+    return render(request, 'myapp/tournaments/enter_tournament_id.html')
+
+
+@csrf_protect
+def delete_tournament(request, pk):
+    tournament = get_object_or_404(Tournament, pk=pk)
+    if request.method == 'POST':
+        try:
+            tournament.delete()
+            return redirect('view_colombia_tournament')
+        except Exception as e:
+            logger.error(f"Error deleting tournament: {e}")
+            return render(request, 'myapp/tournaments/delete_tournament.html', {
+                'tournament': tournament,
+                'error': 'Error al eliminar el torneo. Por favor, inténtalo de nuevo.'
+            })
+    return render(request, 'myapp/tournaments/delete_tournament.html', {'tournament': tournament})
+
+def enter_tournament_id(request):
+    return render(request, 'myapp/tournaments/enter_tournament_id.html')
+
+def enter_tournament_id_for_delete(request):
+    return render(request, 'myapp/tournaments/enter_tournament_id_for_delete.html')
+
+#Excell
 def upload_excel(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)

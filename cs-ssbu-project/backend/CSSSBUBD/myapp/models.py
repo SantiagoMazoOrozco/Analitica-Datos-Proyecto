@@ -1,7 +1,22 @@
 from django.db import models
 
 class Tournament(models.Model):
-    name = models.CharField(max_length=255)
+    tournament_name = models.CharField(max_length=255)
+    winner = models.CharField(max_length=255)
+    attendees = models.IntegerField()
+    zona = models.CharField(max_length=255)
+    pais = models.CharField(max_length=255)
+    region = models.CharField(max_length=255)
+    ciudad = models.CharField(max_length=255)
+    direccion = models.CharField(max_length=255)
+    date = models.DateField()
+    url = models.URLField()
+
+    class Meta:
+        db_table = 'Colombia Tournament'
+
+    def __str__(self):
+        return self.tournament_name
 
 class Event(models.Model):
     name = models.CharField(max_length=255)
@@ -11,9 +26,9 @@ class Player(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     nickname = models.CharField(max_length=100)
-    country = models.CharField(max_length=100,default='Colombia')
+    country = models.CharField(max_length=100, default='Colombia')
     zone = models.CharField(max_length=100)
-    city = models.CharField(max_length=100,default='No Data')
+    city = models.CharField(max_length=100, default='No Data')
     team = models.CharField(max_length=100, blank=True, null=True)
     secondary_team = models.CharField(max_length=100, blank=True, null=True)
     play_offline = models.BooleanField(default=True)
@@ -38,6 +53,7 @@ class Player(models.Model):
 
     def __str__(self):
         return f"{self.nickname} ({self.first_name} {self.last_name})"
+
 class Set(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     display_score = models.CharField(max_length=100, null=True, blank=True, default='')
