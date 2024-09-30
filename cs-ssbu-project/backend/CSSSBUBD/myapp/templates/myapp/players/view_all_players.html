@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Players List</title>
+    <title>Lista de Jugadores</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         table {
@@ -15,16 +15,8 @@
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
-        th {
-            min-width: 150px;
-        }
-        td {
-            min-width: 150px;
-        }
         input {
             width: 100%;
-            box-sizing: border-box;
-            padding: 6px;
             margin-bottom: 10px;
         }
         .table-responsive {
@@ -51,17 +43,17 @@
                         <th><input type="text" id="filterZone" onkeyup="filterTable(4)" placeholder="Buscar por Zona"></th>
                         <th><input type="text" id="filterCity" onkeyup="filterTable(5)" placeholder="Buscar por Ciudad"></th>
                         <th><input type="text" id="filterTeam" onkeyup="filterTable(6)" placeholder="Buscar por Equipo"></th>
-                        <th><input type="text" id="filterSecundaryTeam" onkeyup="filterTable(7)" placeholder="Buscar por Segundo Equipo"></th>
-                        <th><input type="text" id="filterPlayOffline" onkeyup="filterTable(8)" placeholder="Buscar por Offline"></th>
-                        <th><input type="text" id="filterPlayOnline" onkeyup="filterTable(9)" placeholder="Buscar por Online"></th>
-                        <th><input type="text" id="filterMainCharacter" onkeyup="filterTable(10)" placeholder="Buscar por Personaje Principal"></th>
+                        <th><input type="text" id="filterSecondaryTeam" onkeyup="filterTable(7)" placeholder="Buscar por Equipo Secundario"></th>
+                        <th><input type="text" id="filterPlayOffline" onkeyup="filterTable(8)" placeholder="Juega Offline"></th>
+                        <th><input type="text" id="filterPlayOnline" onkeyup="filterTable(9)" placeholder="Juega Online"></th>
+                        <th><input type="text" id="filterMainCharacter" onkeyup="filterTable(10)" placeholder="Personaje Principal"></th>
                         <th><input type="text" id="filterSecondOptionPlayer" onkeyup="filterTable(11)" placeholder="Segunda Opción"></th>
                         <th><input type="text" id="filterThirdOptionPlayer" onkeyup="filterTable(12)" placeholder="Tercera Opción"></th>
-                        <th><input type="text" id="filterTwitter" onkeyup="filterTable(13)" placeholder="Twitter (X)"></th>
+                        <th><input type="text" id="filterTwitter" onkeyup="filterTable(13)" placeholder="Twitter"></th>
                         <th><input type="text" id="filterInstagram" onkeyup="filterTable(14)" placeholder="Instagram"></th>
                         <th><input type="text" id="filterTikTok" onkeyup="filterTable(15)" placeholder="TikTok"></th>
                         <th><input type="text" id="filterUserStartgg" onkeyup="filterTable(16)" placeholder="Usuario Start.gg"></th>
-                        <th><input type="text" id="filterCodeStartgg" onkeyup="filterTable(17)" placeholder="Código Start.gg (Formato - c40d0715)"></th>
+                        <th><input type="text" id="filterCodeStartgg" onkeyup="filterTable(17)" placeholder="Código Start.gg"></th>
                         <th><input type="text" id="filterUrlStartGG" onkeyup="filterTable(18)" placeholder="Url StartGG"></th>
                         <th><input type="text" id="filterUrlSmashdata" onkeyup="filterTable(19)" placeholder="Url Smashdata"></th>
                         <th><input type="text" id="filterCombinedTeams" onkeyup="filterTable(20)" placeholder="Equipos Combinados"></th>
@@ -71,6 +63,7 @@
                         <th><input type="text" id="filterLogoMain" onkeyup="filterTable(24)" placeholder="Logo Principal"></th>
                         <th><input type="text" id="filterLogo2" onkeyup="filterTable(25)" placeholder="Logo 2"></th>
                         <th><input type="text" id="filterLogo3" onkeyup="filterTable(26)" placeholder="Logo 3"></th>
+                        <th><input type="text" id="filterID" onkeyup="filterTable(27)" placeholder="ID"></th>
                     </tr>
                     <tr>
                         <th>First Name</th>
@@ -80,17 +73,17 @@
                         <th>Zone</th>
                         <th>City</th>
                         <th>Team</th>
-                        <th>Secundary Team</th>
-                        <th>Play Offline?</th>
-                        <th>Play Online?</th>
+                        <th>Secondary Team</th>
+                        <th>Play Offline</th>
+                        <th>Play Online</th>
                         <th>Main Character</th>
                         <th>Second Option Player</th>
                         <th>Third Option Player</th>
-                        <th>Twitter (X)</th>
+                        <th>Twitter</th>
                         <th>Instagram</th>
                         <th>TikTok</th>
                         <th>User Startgg</th>
-                        <th>Code Startgg (Formato - c40d0715)</th>
+                        <th>Code Startgg</th>
                         <th>Url StartGG</th>
                         <th>Url Smashdata</th>
                         <th>Combined Teams</th>
@@ -100,6 +93,7 @@
                         <th>Logo Main</th>
                         <th>Logo 2</th>
                         <th>Logo 3</th>
+                        <th>ID</th>
                     </tr>
                 </thead>
                 <tbody id="playerTable">
@@ -112,7 +106,7 @@
                         <td>{{ player.zone }}</td>
                         <td>{{ player.city }}</td>
                         <td>{{ player.team }}</td>
-                        <td>{{ player.secundary_team }}</td>
+                        <td>{{ player.team_secondary }}</td>
                         <td>{{ player.play_offline }}</td>
                         <td>{{ player.play_online }}</td>
                         <td>{{ player.main_character }}</td>
@@ -122,7 +116,7 @@
                         <td>{{ player.instagram }}</td>
                         <td>{{ player.tiktok }}</td>
                         <td>{{ player.user_startgg }}</td>
-                        <td>{{ player.code_startgg }}</td> <!-- Asegúrate de que este campo esté correcto -->
+                        <td>{{ player.code_startgg }}</td>
                         <td>{{ player.url_startgg }}</td>
                         <td>{{ player.url_smashdata }}</td>
                         <td>{{ player.combined_teams }}</td>
@@ -132,10 +126,13 @@
                         <td>{{ player.logo_main }}</td>
                         <td>{{ player.logo_2 }}</td>
                         <td>{{ player.logo_3 }}</td>
+                        <td>{{ player.id }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
-
+            </table>
+        </div>
+    </div>
     <script>
         // Filtro por columna
         function filterTable(columnIndex) {
@@ -161,7 +158,7 @@
 
         // Obtener nombre de columna para los filtros
         function getColumnName(columnIndex) {
-            var columnNames = ["FirstName", "LastName", "Nickname", "Country", "Zone", "City", "Team", "SecundaryTeam", "PlayOffline", "PlayOnline", "MainCharacter", "SecondOptionPlayer", "ThirdOptionPlayer", "Twitter", "Instagram", "TikTok", "UserStartgg", "CodeStartgg", "UrlStartGG", "UrlSmashdata", "CombinedTeams", "CombinedCharacters", "LogoTeam1", "LogoTeam2", "LogoMain", "Logo2", "Logo3"];
+            var columnNames = ["FirstName", "LastName", "Nickname", "Country", "Zone", "City", "Team", "SecondaryTeam", "PlayOffline", "PlayOnline", "MainCharacter", "SecondOptionPlayer", "ThirdOptionPlayer", "Twitter", "Instagram", "TikTok", "UserStartgg", "CodeStartgg", "UrlStartGG", "UrlSmashdata", "CombinedTeams", "CombinedCharacters", "LogoTeam1", "LogoTeam2", "LogoMain", "Logo2", "Logo3", "ID"];
             return columnNames[columnIndex];
         }
 

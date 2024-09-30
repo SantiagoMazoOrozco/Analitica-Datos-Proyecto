@@ -30,7 +30,7 @@ class Player(models.Model):
     zone = models.CharField(max_length=100)
     city = models.CharField(max_length=100, default='No Data')
     team = models.CharField(max_length=100, blank=True, null=True)
-    secondary_team = models.CharField(max_length=100, blank=True, null=True)
+    team_secondary = models.CharField(max_length=100, blank=True, null=True, default='No data')
     play_offline = models.BooleanField(default=True)
     play_online = models.BooleanField(default=True)
     main_character = models.CharField(max_length=100)
@@ -50,6 +50,9 @@ class Player(models.Model):
     logo_main = models.URLField(blank=True, null=True)
     logo_2 = models.URLField(blank=True, null=True)
     logo_3 = models.URLField(blank=True, null=True)
+    
+    class Meta:
+        db_table = 'BDCS'
 
     def __str__(self):
         return f"{self.nickname} ({self.first_name} {self.last_name})"

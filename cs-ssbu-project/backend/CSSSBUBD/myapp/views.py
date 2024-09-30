@@ -67,41 +67,43 @@ def set_delete(request, pk):
 def view_all_sets(request):
     sets = Set.objects.all()
     return render(request, 'myapp/sets/set_list.html', {'sets': sets})
+
 #Vista Jugadores y sus CRUD
 
 def view_all_players(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT 
-                "First Name" AS first_name, 
-                "Last Name" AS last_name, 
+                "First_Name" AS first_name, 
+                "Last_Name" AS last_name, 
                 "Nickname" AS nickname, 
                 "Country" AS country, 
                 "Zone" AS zone, 
                 "City" AS city, 
                 "Team" AS team, 
-                "Secundary Team" AS secundary_team, 
-                "Play Offline?" AS play_offline, 
-                "Play Online?" AS play_online, 
-                "Main Character" AS main_character, 
-                "Second Option Player" AS second_option_player, 
-                "Third Option Player" AS third_option_player, 
-                "Twitter (X)" AS twitter, 
+                "Team_Secondary" AS team_secondary, 
+                "Play_Offline" AS play_offline, 
+                "Play_Online" AS play_online, 
+                "Main_Character" AS main_character, 
+                "Second_Option_Player" AS second_option_player, 
+                "Third_Option_Player" AS third_option_player, 
+                "Twitter" AS twitter, 
                 "Instagram" AS instagram, 
                 "TikTok" AS tiktok, 
-                "User Startgg" AS user_startgg, 
-                "Code Startgg (Formato - c40d0715)" AS code_startgg, 
-                "Url StartGG" AS url_startgg, 
-                "Url Smashdata" AS url_smashdata, 
-                "Combined Teams" AS combined_teams, 
-                "Combined Characters" AS combined_characters, 
-                "Logo Team 1" AS logo_team_1, 
-                "Logo Team 2" AS logo_team_2, 
-                "Logo Main" AS logo_main, 
-                "Logo 2" AS logo_2, 
-                "Logo 3" AS logo_3
+                "User_Startgg" AS user_startgg, 
+                "Code_Startgg" AS code_startgg, 
+                "Url_StartGG" AS url_startgg, 
+                "Url_Smashdata" AS url_smashdata, 
+                "Combined_Teams" AS combined_teams, 
+                "Combined_Characters" AS combined_characters, 
+                "Logo_Team_1" AS logo_team_1, 
+                "Logo_Team_2" AS logo_team_2, 
+                "Logo_Main" AS logo_main, 
+                "Logo_2" AS logo_2, 
+                "Logo_3" AS logo_3,
+                "ID" AS id
             FROM "main"."BDCS"
-            ORDER BY "First Name" ASC
+            ORDER BY "First_Name" ASC
             LIMIT 49999
             OFFSET 0;
         """)
@@ -110,39 +112,32 @@ def view_all_players(request):
     
     players = [dict(zip(columns, row)) for row in rows]
     
-    return render(request, 'myapp/view_all_players.html', {'players': players})
+    return render(request, 'myapp/players/view_all_players.html', {'players': players})
 
-def player_list(request):
-    players = Player.objects.all()
-    return render(request, 'myapp/players/player_list.html', {'players': players})
+
+
+# Configurar el logger
+logger = logging.getLogger(__name__)
 
 def player_create(request):
     if request.method == 'POST':
+        logger.debug("Solicitud POST recibida para crear jugador")
         form = PlayerForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('player_list')
-    else:
-        form = PlayerForm()
-    return render(request, 'myapp/players/player_form.html', {'form': form})
+            player = form.save()
+            logger.debug(f"Jugador guardado: {player}")
+            return redirect('view_all_players')
+        else:
+            logger.error(f"Errores en el formulario: {form.errors}")
+            return render(request, 'myapp/players/create_player.html', {'form': form, 'errors': form.errors})
+    
+    logger.debug("Solicitud GET recibida para crear jugador")
+    form = PlayerForm()
+    return render(request, 'myapp/players/create_player.html', {'form': form})
 
-def player_update(request, pk):
-    player = get_object_or_404(Player, pk=pk)
-    if request.method == 'POST':
-        form = PlayerForm(request.POST, instance=player)
-        if form.is_valid():
-            form.save()
-            return redirect('player_list')
-    else:
-        form = PlayerForm(instance=player)
-    return render(request, 'myapp/players/player_form.html', {'form': form})
 
-def player_delete(request, pk):
-    player = get_object_or_404(Player, pk=pk)
-    if request.method == 'POST':
-        player.delete()
-        return redirect('player_list')
-    return render(request, 'myapp/players/player_confirm_delete.html', {'player': player})
+
+
 
 #Vista Torneos
 
