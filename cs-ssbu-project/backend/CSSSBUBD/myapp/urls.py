@@ -20,6 +20,8 @@ urlpatterns = [
     path('create/', views.player_create, name='player_create'),
     path('edit/<int:player_id>/', views.edit_player, name='edit_player'),  # Asegúrate de que sea <int:player_id>
     path('enter_player_id/', views.enter_player_id, name='enter_player_id'),
+    path('delete/<int:player_id>/', views.delete_player, name='delete_player'),  # Nueva ruta para eliminar jugadores
+    
     
 
     

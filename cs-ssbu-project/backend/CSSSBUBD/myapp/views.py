@@ -5,7 +5,7 @@ from django.db import connection
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_GET
 from .forms import UploadFileForm, TournamentForm, PlayerForm, SetForm
-from .models import Tournament, Event, Player, Set
+from .models import Tournament, Player, Set
 import os
 import json
 
@@ -176,6 +176,12 @@ def edit_player(request, player_id):
 def enter_player_id(request):
     return render(request, 'myapp/players/enter_player_id.html')
 
+def delete_player(request, player_id):
+    player = get_object_or_404(Player, id=player_id)
+    if request.method == 'POST':
+        player.delete()
+        return redirect('view_all_players')  # Redirige a la lista de jugadores después de eliminar
+    return render(request, 'myapp/players/confirm_delete.html', {'player': player})
 #Vista Torneos
 
 @csrf_exempt
@@ -245,21 +251,13 @@ def edit_tournament(request, pk):
 def enter_tournament_id(request):
     return render(request, 'myapp/tournaments/enter_tournament_id.html')
 
-
 @csrf_protect
 def delete_tournament(request, pk):
     tournament = get_object_or_404(Tournament, pk=pk)
     if request.method == 'POST':
-        try:
-            tournament.delete()
-            return redirect('view_colombia_tournament')
-        except Exception as e:
-            logger.error(f"Error deleting tournament: {e}")
-            return render(request, 'myapp/tournaments/delete_tournament.html', {
-                'tournament': tournament,
-                'error': 'Error al eliminar el torneo. Por favor, inténtalo de nuevo.'
-            })
-    return render(request, 'myapp/tournaments/delete_tournament.html', {'tournament': tournament})
+        tournament.delete()
+        return redirect('view_colombia_tournament')
+    return render(request, 'myapp/tournaments/confirm_delete.html', {'tournament': tournament})
 
 def enter_tournament_id(request):
     return render(request, 'myapp/tournaments/enter_tournament_id.html')

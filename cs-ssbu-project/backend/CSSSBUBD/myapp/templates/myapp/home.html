@@ -10,32 +10,17 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Bienvenido a la Aplicación de Gestión de Jugadores de Smash</h1>
+        <h1 class="text-center">Bienvenido a la Aplicación de Gestión de Jugadores Torneos de Smash</h1>
         <p class="text-center">Utiliza las siguientes páginas para interactuar con la base de datos de jugadores y torneos:</p>
         <ul class="list-group">
             <li class="list-group-item">
-                <a href="{% url 'view_all_players' %}">Ver Todos los Jugadores</a>
+                <a href="{% url 'view_all_players' %}">Base Jugadores Jugadores</a>
             </li>
             <li class="list-group-item">
-                <a href="{% url 'view_colombia_tournament' %}">Ver Todos los Torneos</a>
+                <a href="{% url 'view_colombia_tournament' %}">Base Torneos</a>
             </li>
             <li class="list-group-item">
-                <a href="{% url 'add_tournament' %}">Crear Torneo</a>
-            </li>
-            <li class="list-group-item">
-                <a href="{% url 'enter_tournament_id' %}">Editar Torneo</a>
-            </li>
-            <li class="list-group-item">
-                <a href="{% url 'player_create' %}">Crear Jugador</a>
-            </li>
-            <!-- Aquí se asume que tienes una lista de jugadores y estás iterando sobre ellos -->
-            {% for player in players %}
-            <li class="list-group-item">
-                <a href="{% url 'edit_player' player.id %}">Editar Jugador {{ player.first_name }} {{ player.last_name }}</a>
-            </li>
-            {% endfor %}
-            <li class="list-group-item">
-                <a href="{% url 'upload_excel' %}">Subir Archivo Excel</a>
+                <a href="{% url 'upload_excel' %}">Subir Archivo Excel Torneo</a>
             </li>
             <li class="list-group-item">
                 <a href="{% url 'upload_exceljugadores' %}">Subir Archivo Excel de Jugadores</a>

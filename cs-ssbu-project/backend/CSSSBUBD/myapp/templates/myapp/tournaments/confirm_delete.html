@@ -9,11 +9,11 @@
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Confirmar Eliminación</h1>
-        <p>¿Estás seguro de que deseas eliminar al jugador {{ player.first_name }} {{ player.last_name }}?</p>
+        <p>¿Estás seguro de que deseas eliminar el torneo "{{ tournament.tournament_name }}"?</p>
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Eliminar</button>
-            <a href="{% url 'view_all_players' %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{% url 'view_colombia_tournament' %}" class="btn btn-secondary">Cancelar</a>
         </form>
     </div>
 </body>

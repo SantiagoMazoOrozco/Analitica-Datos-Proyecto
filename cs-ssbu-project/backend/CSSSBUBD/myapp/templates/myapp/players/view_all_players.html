@@ -28,6 +28,12 @@
     <div class="container mt-5">
         <h1 class="text-center">Lista de Jugadores</h1>
 
+        <!-- Botones de Inicio y Crear Jugador -->
+        <div class="text-right mb-3">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Inicio</a>
+            <a href="{% url 'player_create' %}" class="btn btn-success">Crear Jugador</a>
+        </div>
+
         <!-- Búsqueda general -->
         <input class="form-control mb-3" id="generalSearch" type="text" placeholder="Buscar en todas las columnas..." onkeyup="filterGeneral()">
 
@@ -130,6 +136,7 @@
                         <td>{{ player.id }}</td>
                         <td>
                             <a href="{% url 'edit_player' player.id %}" class="btn btn-primary">Editar</a>
+                            <a href="{% url 'delete_player' player.id %}" class="btn btn-danger">Eliminar</a>
                         </td>
                     </tr>
                     {% endfor %}

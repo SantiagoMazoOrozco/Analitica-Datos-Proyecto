@@ -36,6 +36,16 @@
     <div class="container mt-5">
         <h1 class="text-center">Lista de Torneos en Colombia</h1>
 
+        <!-- Botón de Inicio -->
+        <div class="text-right mb-3">
+            <a href="{% url 'home' %}" class="btn btn-primary">Inicio</a>
+        </div>
+
+        <!-- Botón de Crear Torneo -->
+        <div class="text-right mb-3">
+            <a href="{% url 'add_tournament' %}" class="btn btn-success">Crear Torneo</a>
+        </div>
+
         <!-- Búsqueda general -->
         <input class="form-control mb-3" id="generalSearch" type="text" placeholder="Buscar en todas las columnas..." onkeyup="filterGeneral()">
 
@@ -68,6 +78,7 @@
                         <th>Fecha</th>
                         <th>ID</th>
                         <th>URL</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tournamentTable">
@@ -84,6 +95,10 @@
                         <td>{{ tournament.date }}</td>
                         <td>{{ tournament.id }}</td>
                         <td><a href="{{ tournament.url }}">{{ tournament.url }}</a></td>
+                        <td>
+                            <a href="{% url 'edit_tournament' tournament.id %}" class="btn btn-primary">Editar</a>
+                            <a href="{% url 'delete_tournament' tournament.id %}" class="btn btn-danger">Eliminar</a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -116,7 +131,7 @@
 
         // Obtener nombre de columna para los filtros
         function getColumnName(columnIndex) {
-            var columnNames = ["TournamentName", "Winner", "Attendees", "Zona", "Pais", "Region", "Ciudad", "Direccion", "Date","ID", "URL"];
+            var columnNames = ["TournamentName", "Winner", "Attendees", "Zona", "Pais", "Region", "Ciudad", "Direccion", "Date", "ID", "URL"];
             return columnNames[columnIndex];
         }
 
