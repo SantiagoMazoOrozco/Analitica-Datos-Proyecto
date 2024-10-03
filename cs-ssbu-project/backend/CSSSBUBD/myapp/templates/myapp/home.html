@@ -28,6 +28,18 @@
             <li class="list-group-item">
                 <a href="{% url 'player_create' %}">Crear Jugador</a>
             </li>
+            <!-- Aquí se asume que tienes una lista de jugadores y estás iterando sobre ellos -->
+            {% for player in players %}
+            <li class="list-group-item">
+                <a href="{% url 'edit_player' player.id %}">Editar Jugador {{ player.first_name }} {{ player.last_name }}</a>
+            </li>
+            {% endfor %}
+            <li class="list-group-item">
+                <a href="{% url 'upload_excel' %}">Subir Archivo Excel</a>
+            </li>
+            <li class="list-group-item">
+                <a href="{% url 'upload_exceljugadores' %}">Subir Archivo Excel de Jugadores</a>
+            </li>
         </ul>
     </div>
 </body>

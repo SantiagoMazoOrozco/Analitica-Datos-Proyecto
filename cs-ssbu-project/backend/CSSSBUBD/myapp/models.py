@@ -1,6 +1,7 @@
 from django.db import models
 
 class Tournament(models.Model):
+    
     tournament_name = models.CharField(max_length=255)
     winner = models.CharField(max_length=255)
     attendees = models.IntegerField()
@@ -23,6 +24,7 @@ class Event(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
 
 class Player(models.Model):
+    id = models.IntegerField(primary_key=True, unique=True)  # Asegúrate de que sea un campo numérico
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     nickname = models.CharField(max_length=100)
@@ -36,20 +38,20 @@ class Player(models.Model):
     main_character = models.CharField(max_length=100)
     second_option_player = models.CharField(max_length=100, blank=True, null=True)
     third_option_player = models.CharField(max_length=100, blank=True, null=True)
-    twitter = models.URLField(blank=True, null=True)
-    instagram = models.URLField(blank=True, null=True)
-    tiktok = models.URLField(blank=True, null=True)
+    twitter = models.TextField(blank=True, null=True)
+    instagram = models.TextField(blank=True, null=True)
+    tiktok = models.TextField(blank=True, null=True)
     user_startgg = models.CharField(max_length=100, blank=True, null=True)
-    code_startgg = models.CharField(max_length=20, blank=True, null=True)
+    code_startgg = models.CharField(max_length=20, blank=True, null=True,)
     url_startgg = models.URLField(blank=True, null=True)
     url_smashdata = models.URLField(blank=True, null=True)
     combined_teams = models.TextField(blank=True, null=True)
     combined_characters = models.TextField(blank=True, null=True)
-    logo_team_1 = models.URLField(blank=True, null=True)
-    logo_team_2 = models.URLField(blank=True, null=True)
-    logo_main = models.URLField(blank=True, null=True)
-    logo_2 = models.URLField(blank=True, null=True)
-    logo_3 = models.URLField(blank=True, null=True)
+    logo_team_1 = models.TextField(blank=True, null=True)
+    logo_team_2 = models.TextField(blank=True, null=True)
+    logo_main = models.TextField(blank=True, null=True)
+    logo_2 = models.TextField(blank=True, null=True)
+    logo_3 = models.TextField(blank=True, null=True)
     
     class Meta:
         db_table = 'BDCS'

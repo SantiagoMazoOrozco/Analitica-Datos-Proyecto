@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import get_event_id_view, get_event_results, get_sets_by_tournament_view, view_colombia_tournament, upload_excel, create_tournament, view_all_sets, set_create, set_update, set_delete
+from .views import get_event_id_view, get_event_results, get_sets_by_tournament_view, view_colombia_tournament, upload_excel, create_tournament, view_all_sets, set_create, set_update, set_delete,upload_exceljugadores,enter_player_id
 from django.urls import path
 from . import views
 
@@ -13,11 +13,14 @@ urlpatterns = [
     path('api/get-event-id/', views.get_event_id_view, name='get_event_id'),
     path('api/get-sets-by-tournament/', views.get_sets_by_tournament_view, name='get_sets_by_tournament'),
     path('upload-excel/', views.upload_excel, name='upload_excel'),
+    path('upload_exceljugadores/', upload_exceljugadores, name='upload_exceljugadores'),
     
     #Players
-    
     path('view-all-players/', views.view_all_players, name='view_all_players'),
     path('create/', views.player_create, name='player_create'),
+    path('edit/<int:player_id>/', views.edit_player, name='edit_player'),  # Asegúrate de que sea <int:player_id>
+    path('enter_player_id/', views.enter_player_id, name='enter_player_id'),
+    
 
     
     # Rutas Tournaments

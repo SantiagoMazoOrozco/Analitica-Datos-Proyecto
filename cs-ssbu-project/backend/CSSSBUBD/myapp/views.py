@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.db import connection
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
@@ -135,9 +136,45 @@ def player_create(request):
     form = PlayerForm()
     return render(request, 'myapp/players/create_player.html', {'form': form})
 
+# Vista para editar un jugador
+def edit_player(request, player_id):
+    player = get_object_or_404(Player, id=player_id)
+    
+    if request.method == 'POST':
+        player.first_name = request.POST['first_name']
+        player.last_name = request.POST['last_name']
+        player.nickname = request.POST['nickname']
+        player.country = request.POST['country']
+        player.zone = request.POST['zone']
+        player.city = request.POST['city']
+        player.team = request.POST['team']
+        player.team_secondary = request.POST['team_secondary']
+        player.play_offline = request.POST.get('play_offline') == 'on'
+        player.play_online = request.POST.get('play_online') == 'on'
+        player.main_character = request.POST['main_character']
+        player.second_option_player = request.POST['second_option_player']
+        player.third_option_player = request.POST['third_option_player']
+        player.twitter = request.POST['twitter']
+        player.instagram = request.POST['instagram']
+        player.tiktok = request.POST['tiktok']
+        player.user_startgg = request.POST['user_startgg']
+        player.code_startgg = request.POST['code_startgg']
+        player.url_startgg = request.POST['url_startgg']
+        player.url_smashdata = request.POST['url_smashdata']
+        player.combined_teams = request.POST['combined_teams']
+        player.combined_characters = request.POST['combined_characters']
+        player.logo_team_1 = request.POST['logo_team_1']
+        player.logo_team_2 = request.POST['logo_team_2']
+        player.logo_main = request.POST['logo_main']
+        player.logo_2 = request.POST['logo_2']
+        player.logo_3 = request.POST['logo_3']
+        player.save()
+        return redirect('view_all_players')  # Redirige a la lista de jugadores después de guardar
 
+    return render(request, 'myapp/players/edit_player.html', {'player': player})
 
-
+def enter_player_id(request):
+    return render(request, 'myapp/players/enter_player_id.html')
 
 #Vista Torneos
 
@@ -271,6 +308,89 @@ def upload_excel(request):
     else:
         form = UploadFileForm()
     return render(request, 'myapp/upload_excel.html', {'form': form})
+
+def upload_exceljugadores(request):
+    if request.method == 'POST' and request.FILES['excel_file']:
+        excel_file = request.FILES['excel_file']
+        fs = FileSystemStorage()
+        filename = fs.save(excel_file.name, excel_file)
+        file = fs.path(filename)
+
+        # Procesar el archivo Excel
+        df = pd.read_excel(file)
+
+        # Renombrar las columnas del DataFrame para que coincidan con los nombres de los campos en el modelo Player
+        df.rename(columns={
+            'First_Name': 'first_name',
+            'Last_Name': 'last_name',
+            'Nickname': 'nickname',
+            'Country': 'country',
+            'Zone': 'zone',
+            'City': 'city',
+            'Team': 'team',
+            'Secondary_Team': 'team_secondary',
+            'Play_Offline': 'play_offline',
+            'Play_Online': 'play_online',
+            'Main_Character': 'main_character',
+            'Second_Option_Player': 'second_option_player',
+            'Third_Option_Player': 'third_option_player',
+            'Twitter': 'twitter',
+            'Instagram': 'instagram',
+            'TikTok': 'tiktok',
+            'User_Startgg': 'user_startgg',
+            'Code_Startgg': 'code_startgg',
+            'Url_StartGG': 'url_startgg',
+            'Url_Smashdata': 'url_smashdata',
+            'Combined_Teams': 'combined_teams',
+            'Combined_Characters': 'combined_characters',
+            'Logo_Team_1': 'logo_team_1',
+            'Logo_Team_2': 'logo_team_2',
+            'Logo_Main': 'logo_main',
+            'Logo_2': 'logo_2',
+            'Logo_3': 'logo_3',
+            'ID': 'id'
+        }, inplace=True)
+
+        # Convertir valores de texto a booleanos
+        df['play_offline'] = df['play_offline'].map({'Sí': True, 'No': False})
+        df['play_online'] = df['play_online'].map({'Sí': True, 'No': False})
+
+        for _, row in df.iterrows():
+            player_data = {
+                'first_name': row['first_name'],
+                'last_name': row['last_name'],
+                'nickname': row['nickname'],
+                'country': row['country'],
+                'zone': row['zone'],
+                'city': row['city'],
+                'team': row['team'],
+                'team_secondary': row['team_secondary'],
+                'play_offline': row['play_offline'],
+                'play_online': row['play_online'],
+                'main_character': row['main_character'],
+                'second_option_player': row['second_option_player'],
+                'third_option_player': row['third_option_player'],
+                'twitter': row['twitter'],
+                'instagram': row['instagram'],
+                'tiktok': row['tiktok'],
+                'user_startgg': row['user_startgg'],
+                'code_startgg': row['code_startgg'],
+                'url_startgg': row['url_startgg'],
+                'url_smashdata': row['url_smashdata'],
+                'combined_teams': row['combined_teams'],
+                'combined_characters': row['combined_characters'],
+                'logo_team_1': row['logo_team_1'],
+                'logo_team_2': row['logo_team_2'],
+                'logo_main': row['logo_main'],
+                'logo_2': row['logo_2'],
+                'logo_3': row['logo_3']
+            }
+            if 'id' in row:
+                player_data['id'] = int(row['id'])
+            Player.objects.create(**player_data)
+
+        return redirect('home')
+    return render(request, 'myapp/upload_exceljugadores.html')
 # API Consultas
 
 def get_event_id_view(request):

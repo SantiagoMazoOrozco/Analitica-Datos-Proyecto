@@ -94,6 +94,7 @@
                         <th>Logo 2</th>
                         <th>Logo 3</th>
                         <th>ID</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="playerTable">
@@ -127,6 +128,9 @@
                         <td>{{ player.logo_2 }}</td>
                         <td>{{ player.logo_3 }}</td>
                         <td>{{ player.id }}</td>
+                        <td>
+                            <a href="{% url 'edit_player' player.id %}" class="btn btn-primary">Editar</a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
